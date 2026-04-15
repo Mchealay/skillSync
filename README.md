@@ -7,7 +7,7 @@
 > **Full Stack AI Career Coach built with React 19 + Next.js 15, Tailwind CSS, NeonDB, Prisma, Clerk Authentication, Inngest, Gemini API, and Shadcn UI.**  
 > A **cutting-edge AI-driven career platform** that provides **personalized job recommendations, AI resume reviews, and real-time career insights** to help users land their dream job.  
 
-![skillSync Banner](https://github.com/amitkumardemo/skillSync/blob/main/skillSyncs.png)
+![skillSync Banner](https://github.com/mchealay/skillSync/blob/main/skillSyncs.png)
 
 
 **⚠️ Important for SSoC Contributors (SSoC S4)**
@@ -249,5 +249,5 @@ Licensed under the [MIT License](https://github.com/amitkumardemo/skillSync/blob
 
 ---
  **👨‍💻 Developed By**
-  **❤️Amit Kumar❤️**
-[GitHub](https://github.com/amitkumardemo) | [LinkedIn](https://www.linkedin.com/in/amit-kumar-686196225/)
+  **❤️Mchealay❤️**
+[GitHub](https://github.com/mchealay) | [LinkedIn]
