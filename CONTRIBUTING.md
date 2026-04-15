@@ -1,8 +1,8 @@
 ---
 
-# 🎯 Contributing to EdgeCareer
+# 🎯 Contributing to skillSync
 
-Welcome to **EdgeCareer** — an open-source project dedicated to empowering users with tools and insights for career advancement. We’re excited to have your support in building a smarter, more impactful platform!
+Welcome to **skillSync** — an open-source project dedicated to empowering users with tools and insights for career advancement. We’re excited to have your support in building a smarter, more impactful platform!
 
 Whether you're a developer, designer, writer, or tester — **you can make a difference here**. 🛠️💡
 
@@ -16,7 +16,7 @@ To ensure a positive experience for everyone, please read and follow our [Code o
 
 ## 🚀 How You Can Contribute
 
-There are many meaningful ways to contribute to EdgeCareer:
+There are many meaningful ways to contribute to skillSync:
 
 * 🐛 Fix bugs or issues
 * ✨ Add new features or tools
@@ -100,7 +100,7 @@ If applicable:
 
 Use GitHub Issues to report bugs or suggest improvements:
 
-1. Click [New Issue](https://github.com/amitkumardemo/EdgeCareer/issues/new)
+1. Click [New Issue](https://github.com/amitkumardemo/skillSync/issues/new)
 2. Include:
 
    * What’s broken or missing
@@ -127,7 +127,7 @@ Need help? Open an issue with the label `help wanted` or `question`.
 
 ## 🔍 Reviewing PRs
 
-Help improve EdgeCareer by reviewing contributions:
+Help improve skillSync by reviewing contributions:
 
 * ✅ Check if it runs/works as expected
 * 🧠 Look for clear, maintainable code
@@ -169,14 +169,14 @@ Before submitting your pull request:
 
 ## 🙏 A Note from the Maintainer
 
-Thanks for contributing to **EdgeCareer**! Your ideas, energy, and code help us grow faster and stronger. Let’s work together to make this an inclusive, efficient, and impactful platform.
+Thanks for contributing to **skillSync**! Your ideas, energy, and code help us grow faster and stronger. Let’s work together to make this an inclusive, efficient, and impactful platform.
 
 Feel free to open a discussion or issue if you have questions or proposals.
 
 ---
 
 <div align="center">
-  <em><b>Your journey starts here — thank you for being a part of EdgeCareer!</b></em>
+  <em><b>Your journey starts here — thank you for being a part of skillSync!</b></em>
 </div>
 
 ---

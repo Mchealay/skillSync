@@ -8,9 +8,9 @@ export default function Footer() {
         {/* Logo and Tagline */}
         <div className="col-span-1">
           <div className="flex items-center gap-2 mb-4">
-            <img src="/skill.png" alt="EdgeCareer Logo" className="h-6 w-auto" />
+            <img src="/skill.png" alt="skillSync Logo" className="h-6 w-auto" />
             <span className="text-xl md:text-2xl font-extrabold tracking-wide text-black dark:text-white">
-              EdgeCareer
+              skillSync
             </span>
           </div>
           <p className="text-gray-600 dark:text-gray-400">
@@ -66,7 +66,7 @@ export default function Footer() {
 
           <div className="flex gap-4 mt-6">
             <a
-              href="https://github.com/amitkumardemo/EdgeCareer"
+              href="https://github.com/amitkumardemo/skillSync"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors"
@@ -92,7 +92,7 @@ export default function Footer() {
       </div>
 
       <div className="text-center text-gray-500 dark:text-gray-400 text-xs mt-10">
-        © {new Date().getFullYear()} EdgeCareer. Built with 💡 by Edge Career.
+        © {new Date().getFullYear()} skillSync. Built with 💡 by skillSync.
       </div>
     </footer>
   );
