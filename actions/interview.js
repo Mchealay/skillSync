@@ -22,19 +22,25 @@ export async function generateQuiz() {
   if (!user) throw new Error("User not found");
 
   const prompt = `
-    Generate 5 technical interview questions for a ${
-      user.industry
-    } professional${
+    Generate 8 realistic interview questions for a ${user.industry || "general"} professional${
     user.skills?.length ? ` with expertise in ${user.skills.join(", ")}` : ""
   }.
-    
-    The questions should be open-ended.
-    
-    Return the response in this JSON format only, no additional text:
+
+    Include a balanced mix of commonly asked interview questions:
+    - 3 Behavioral questions (e.g. "Tell me about yourself", "Describe a time you faced a challenge", "What are your strengths and weaknesses?")
+    - 2 Situational questions relevant to the industry (e.g. "How would you handle...")
+    - 3 Technical or domain-specific questions based on their skills and industry
+
+    The questions must be commonly asked in real job interviews — not hypothetical puzzles.
+    Each question should have a brief 1-sentence tip on how to structure the answer.
+
+    Return ONLY this JSON format, no additional text or code fences:
     {
       "questions": [
         {
-          "question": "string"
+          "question": "string",
+          "type": "Behavioral" | "Situational" | "Technical",
+          "tip": "string (a brief 1-sentence hint on how to structure the answer, e.g. use the STAR method)"
         }
       ]
     }
@@ -54,6 +60,72 @@ export async function generateQuiz() {
   }
 }
 
+/**
+ * Analyze a single interview answer using Gemini AI.
+ * Returns structured feedback with score, strengths, improvements, and a model answer.
+ */
+export async function analyzeAnswer({ question, answer, type }) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+    select: { industry: true, skills: true },
+  });
+
+  if (!user) throw new Error("User not found");
+
+  if (!answer || answer.trim().length < 5) {
+    return {
+      score: 0,
+      scoreLabel: "No Answer",
+      feedback: "No meaningful answer was provided.",
+      strengths: [],
+      improvements: ["Please provide a detailed answer to receive feedback."],
+      modelAnswer: "",
+    };
+  }
+
+  const prompt = `
+    You are an expert interview coach evaluating a candidate's interview response.
+
+    Candidate Context:
+    - Industry: ${user.industry || "General"}
+    - Skills: ${user.skills?.join(", ") || "Not specified"}
+    - Question Type: ${type || "General"}
+
+    Question: "${question}"
+    Candidate's Answer: "${answer}"
+
+    Evaluate the answer thoroughly and return ONLY this JSON, no additional text or code fences:
+    {
+      "score": number (1-10, where 10 is perfect),
+      "scoreLabel": "Excellent" | "Strong" | "Good" | "Fair" | "Needs Work",
+      "feedback": "string (2-3 sentences of constructive overall feedback on the answer quality, clarity, and relevance)",
+      "strengths": ["string", "string"] (2-3 specific things the candidate did well),
+      "improvements": ["string", "string"] (2-3 specific, actionable areas to improve),
+      "modelAnswer": "string (a brief 3-4 sentence model answer demonstrating the ideal response)"
+    }
+
+    Score guide:
+    - 9-10: Excellent — comprehensive, structured, specific examples, industry-aligned
+    - 7-8: Strong — good structure and content, minor gaps
+    - 5-6: Good — adequate but lacks depth or specifics
+    - 3-4: Fair — partially relevant but misses key elements
+    - 1-2: Needs Work — off-topic, too brief, or unclear
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+    return JSON.parse(cleanedText);
+  } catch (error) {
+    console.error("Error analyzing answer:", error);
+    throw new Error("Failed to analyze your answer. Please try again.");
+  }
+}
+
 export async function saveQuizResult(questions, answers) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -66,7 +138,7 @@ export async function saveQuizResult(questions, answers) {
 
   const prompt = `
     You are an expert technical interviewer for a ${user.industry} professional.
-    The user was asked the following 5 questions and provided the following answers:
+    The user was asked the following questions and provided the following answers:
     ${questions
       .map(
         (q, i) => `Q: ${q.question}
