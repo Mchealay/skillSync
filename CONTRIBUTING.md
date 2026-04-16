@@ -100,7 +100,7 @@ If applicable:
 
 Use GitHub Issues to report bugs or suggest improvements:
 
-1. Click [New Issue](https://github.com/amitkumardemo/skillSync/issues/new)
+1. Click [New Issue](https://github.com/mchealay/skillSync/issues/new)
 2. Include:
 
    * What’s broken or missing
