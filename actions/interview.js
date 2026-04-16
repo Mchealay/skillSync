@@ -22,22 +22,19 @@ export async function generateQuiz() {
   if (!user) throw new Error("User not found");
 
   const prompt = `
-    Generate 10 technical interview questions for a ${
+    Generate 5 technical interview questions for a ${
       user.industry
     } professional${
     user.skills?.length ? ` with expertise in ${user.skills.join(", ")}` : ""
   }.
     
-    Each question should be multiple choice with 4 options.
+    The questions should be open-ended.
     
     Return the response in this JSON format only, no additional text:
     {
       "questions": [
         {
-          "question": "string",
-          "options": ["string", "string", "string", "string"],
-          "correctAnswer": "string",
-          "explanation": "string"
+          "question": "string"
         }
       ]
     }
@@ -57,7 +54,7 @@ export async function generateQuiz() {
   }
 }
 
-export async function saveQuizResult(questions, answers, score) {
+export async function saveQuizResult(questions, answers) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
@@ -67,57 +64,60 @@ export async function saveQuizResult(questions, answers, score) {
 
   if (!user) throw new Error("User not found");
 
-  const questionResults = questions.map((q, index) => ({
-    question: q.question,
-    answer: q.correctAnswer,
-    userAnswer: answers[index],
-    isCorrect: q.correctAnswer === answers[index],
-    explanation: q.explanation,
-  }));
-
-  // Get wrong answers
-  const wrongAnswers = questionResults.filter((q) => !q.isCorrect);
-
-  // Only generate improvement tips if there are wrong answers
-  let improvementTip = null;
-  if (wrongAnswers.length > 0) {
-    const wrongQuestionsText = wrongAnswers
+  const prompt = `
+    You are an expert technical interviewer for a ${user.industry} professional.
+    The user was asked the following 5 questions and provided the following answers:
+    ${questions
       .map(
-        (q) =>
-          `Question: "${q.question}"\nCorrect Answer: "${q.answer}"\nUser Answer: "${q.userAnswer}"`
+        (q, i) => `Q: ${q.question}
+A: ${answers[i] || "No answer provided"}`
       )
-      .join("\n\n");
+      .join("\n\n")}
 
-    const improvementPrompt = `
-      The user got the following ${user.industry} technical interview questions wrong:
-
-      ${wrongQuestionsText}
-
-      Based on these mistakes, provide a concise, specific improvement tip.
-      Focus on the knowledge gaps revealed by these wrong answers.
-      Keep the response under 2 sentences and make it encouraging.
-      Don't explicitly mention the mistakes, instead focus on what to learn/practice.
-    `;
-
-    try {
-      const tipResult = await model.generateContent(improvementPrompt);
-
-      improvementTip = tipResult.response.text().trim();
-      console.log(improvementTip);
-    } catch (error) {
-      console.error("Error generating improvement tip:", error);
-      // Continue without improvement tip if generation fails
+    Please evaluate the user's answers.
+    Return your response in this exact JSON format only, no additional text:
+    {
+      "evaluations": [
+        {
+          "question": "string",
+          "userAnswer": "string",
+          "isCorrect": boolean (true if the answer is mostly functionally correct/demonstrates good understanding, false otherwise),
+          "feedback": "string (what they did well and how they can improve)",
+          "expectedAnswer": "string (a model answer)"
+        }
+      ],
+      "overallScore": number (0 to 100),
+      "improvementTip": "string (overall feedback for improvement, limit to 2 sentences)"
     }
+  `;
+
+  let evalResult;
+  try {
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+    evalResult = JSON.parse(cleanedText);
+  } catch (error) {
+    console.error("Error evaluating answers with AI:", error);
+    throw new Error("Failed to evaluate answers. Try again.");
   }
+
+  const questionResults = evalResult.evaluations.map((e) => ({
+    question: e.question,
+    answer: e.expectedAnswer,
+    userAnswer: e.userAnswer,
+    isCorrect: e.isCorrect,
+    explanation: e.feedback,
+  }));
 
   try {
     const assessment = await db.assessment.create({
       data: {
         userId: user.id,
-        quizScore: score,
+        quizScore: evalResult.overallScore,
         questions: questionResults,
         category: "Technical",
-        improvementTip,
+        improvementTip: evalResult.improvementTip,
       },
     });
 

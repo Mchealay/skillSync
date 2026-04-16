@@ -11,8 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Mic, MicOff } from "lucide-react";
 import { generateQuiz, saveQuizResult } from "@/actions/interview";
 import QuizResult from "./quiz-result";
 import useFetch from "@/hooks/use-fetch";
@@ -22,7 +22,8 @@ export default function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [showExplanation, setShowExplanation] = useState(false);
-  const quizCompleted=false;
+  const [isRecording, setIsRecording] = useState(false);
+  const quizCompleted = false;
 
   const {
     loading: generatingQuiz,
@@ -43,10 +44,52 @@ export default function Quiz() {
     }
   }, [quizData]);
 
-  const handleAnswer = (answer) => {
+  const handleAnswer = (answerText) => {
     const newAnswers = [...answers];
-    newAnswers[currentQuestion] = answer;
+    newAnswers[currentQuestion] = answerText;
     setAnswers(newAnswers);
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      setIsRecording(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Speech recognition is not supported in your browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      let finalTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript + " ";
+        }
+      }
+      if (finalTranscript) {
+        const currentAnswer = answers[currentQuestion] || "";
+        handleAnswer(currentAnswer + finalTranscript);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event.error);
+      setIsRecording(false);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognition.start();
+    setIsRecording(true);
   };
 
   const handleNext = () => {
@@ -59,21 +102,14 @@ export default function Quiz() {
   };
 
   const calculateScore = () => {
-    let correct = 0;
-    answers.forEach((answer, index) => {
-      if (answer === quizData[index].correctAnswer) {
-        correct++;
-      }
-    });
-    return (correct / quizData.length) * 100;
+    // Score is now calculated by AI
+    return 0;
   };
 
   const finishQuiz = async () => {
-    const score = calculateScore();
     try {
-      await saveQuizResultFn(quizData, answers, score);
-      //setQuizCompleted(true);
-      toast.success("Quiz completed!");
+      await saveQuizResultFn(quizData, answers);
+      toast.success("Quiz completed! Analyzing results...");
     } catch (error) {
       toast.error(error.message || "Failed to save quiz results");
     }
@@ -132,18 +168,25 @@ export default function Quiz() {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-lg font-medium">{question.question}</p>
-        <RadioGroup
-          onValueChange={handleAnswer}
-          value={answers[currentQuestion]}
-          className="space-y-2"
-        >
-          {question.options.map((option, index) => (
-            <div key={index} className="flex items-center space-x-2">
-              <RadioGroupItem value={option} id={`option-${index}`} />
-              <Label htmlFor={`option-${index}`}>{option}</Label>
-            </div>
-          ))}
-        </RadioGroup>
+        <div className="relative">
+          <Textarea
+            value={answers[currentQuestion] || ""}
+            onChange={(e) => handleAnswer(e.target.value)}
+            placeholder="Type your answer here or click the microphone to speak..."
+            className="min-h-[150px]"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleRecording}
+            className={`absolute bottom-2 right-2 ${
+              isRecording ? "text-red-500 animate-pulse" : "text-muted-foreground"
+            }`}
+             type="button"
+          >
+            {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+          </Button>
+        </div>
 
         {quizCompleted && (
           <div className="mt-4 p-4 bg-muted rounded-lg">
