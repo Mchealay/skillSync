@@ -30,13 +30,13 @@ export const features = [
     icon: <ShieldCheck className="w-6 h-6 mb-4 text-gray-400" />,
     title: "Check Your ATS Score",
     description: "Upload your resume and get feedback to improve your chances.",
-    button: { text: "Check ATS Score", link: "/ats-checker" },
+    button: { text: "Check ATS Score", link: "/resume" },
   },
   {
     icon: <Upload className="w-6 h-6 mb-4 text-gray-400" />,
     title: "Get Course Recommendations",
     description: "AI suggests the best courses to enhance your skills.",
-    button: { text: "Find Best Courses", link: "/course-recommendations" },
+    button: { text: "Find Best Courses", link: "/dashboard" },
   },  
   {
     icon: <Mic className="w-6 h-6 mb-4 text-gray-400" />,
@@ -48,19 +48,19 @@ export const features = [
     icon: <BarChart3 className="w-6 h-6 mb-4 text-gray-400" />,
     title: "Know Industry Trends",
     description: "Stay updated with salary insights and latest job trends.",
-    button: { text: "Explore Insights", link: "/industry-insights" },
+    button: { text: "Explore Insights", link: "/dashboard" },
   },
   {
     icon: <Upload className="w-6 h-6 mb-4 text-gray-400" />,
     title: "Get Job Matches",
     description: "AI recommends the best job opportunities for you.",
-    button: { text: "Find Jobs", link: "/latest-jobs" },
+    button: { text: "Find Jobs", link: "/dashboard" },
   },
   {
     icon: <Users className="w-6 h-6 mb-4 text-gray-400" />,
     title: "Shortlist Top Talent",
     description: "AI-powered tools for recruiters to filter resumes efficiently.",
-    button: { text: "For Recruiters", link: "/recruiter-tools" },
+    button: { text: "For Recruiters", link: "/dashboard" },
   },
 ];
 
