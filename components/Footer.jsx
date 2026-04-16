@@ -74,7 +74,7 @@ export default function Footer() {
               <Github className="h-6 w-6 hover:scale-110 transition-transform" />
             </a>
             <a
-              href="https://www.linkedin.com/in/amit-kumar-686196225/"
+              href="https://www.linkedin.com/in/mchealay-hafte-119875353/"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors"
