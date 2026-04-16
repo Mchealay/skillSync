@@ -276,7 +276,7 @@ useEffect(() => {
                   </div>
 
                   <p className="text-sm italic text-muted-foreground leading-relaxed">
-                    "{quote.q}" — <span className="font-medium">Amit Kumar, Founder of TechieHelp</span>
+                    "{quote.q}" — <span className="font-medium">Mchealay, Full stack developer</span>
                   </p>
                       
                 </motion.div>
