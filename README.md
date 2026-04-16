@@ -250,4 +250,4 @@ Licensed under the [MIT License](https://github.com/amitkumardemo/skillSync/blob
 ---
  **👨‍💻 Developed By**
   **❤️Mchealay❤️**
-[GitHub](https://github.com/mchealay) | [LinkedIn]
+[GitHub](https://github.com/mchealay) | [LinkedIn](https://www.linkedin.com/in/mchealay-hafte-119875353/)
