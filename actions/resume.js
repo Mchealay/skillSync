@@ -2,15 +2,20 @@
 
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { model, withRetries } from "@/lib/gemini";
 import { revalidatePath } from "next/cache";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+import { ratelimit } from "@/lib/ratelimit";
 
 export async function generateResumeWithAI() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
+
+  if (ratelimit) {
+    const identifier = userId;
+    const { success } = await ratelimit.limit(identifier);
+    if (!success) throw new Error("Rate limit exceeded. Please try again later.");
+  }
 
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
@@ -96,7 +101,7 @@ IMPORTANT:
 `;
 
   try {
-    const result = await model.generateContent(prompt);
+    const result = await withRetries(() => model.generateContent(prompt));
     const content = result.response.text().trim();
 
     const resume = await db.resume.upsert({
@@ -174,6 +179,12 @@ export async function improveWithAI({ current, type }) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
+  if (ratelimit) {
+    const identifier = userId;
+    const { success } = await ratelimit.limit(identifier);
+    if (!success) throw new Error("Rate limit exceeded. Please try again later.");
+  }
+
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
     include: {
@@ -200,7 +211,7 @@ export async function improveWithAI({ current, type }) {
   `;
 
   try {
-    const result = await model.generateContent(prompt);
+    const result = await withRetries(() => model.generateContent(prompt));
     const response = result.response;
     const improvedContent = response.text().trim();
     return improvedContent;

@@ -26,7 +26,7 @@ export default async function InterviewPrepPage() {
       </div>
 
       {/* ── Interview Simulator highlight card ── */}
-      <div className="relative rounded-2xl border bg-card overflow-hidden shadow-xl">
+      <div className="relative rounded-2xl border bg-card overflow-hidden shadow-xl card-hover">
         {/* gradient accent bar */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-blue-500 to-purple-500" />
 

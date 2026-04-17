@@ -2,14 +2,19 @@
 
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { model, withRetries } from "@/lib/gemini";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+import { ratelimit } from "@/lib/ratelimit";
 
 export async function generateQuiz() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
+
+  if (ratelimit) {
+    const identifier = userId;
+    const { success } = await ratelimit.limit(identifier);
+    if (!success) throw new Error("Rate limit exceeded. Please try again later.");
+  }
 
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
@@ -47,7 +52,7 @@ export async function generateQuiz() {
   `;
 
   try {
-    const result = await model.generateContent(prompt);
+    const result = await withRetries(() => model.generateContent(prompt));
     const response = result.response;
     const text = response.text();
     const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
@@ -67,6 +72,12 @@ export async function generateQuiz() {
 export async function analyzeAnswer({ question, answer, type }) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
+
+  if (ratelimit) {
+    const identifier = userId;
+    const { success } = await ratelimit.limit(identifier);
+    if (!success) throw new Error("Rate limit exceeded. Please try again later.");
+  }
 
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
@@ -116,7 +127,7 @@ export async function analyzeAnswer({ question, answer, type }) {
   `;
 
   try {
-    const result = await model.generateContent(prompt);
+    const result = await withRetries(() => model.generateContent(prompt));
     const text = result.response.text();
     const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
     return JSON.parse(cleanedText);
@@ -129,6 +140,12 @@ export async function analyzeAnswer({ question, answer, type }) {
 export async function saveQuizResult(questions, answers) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
+
+  if (ratelimit) {
+    const identifier = userId;
+    const { success } = await ratelimit.limit(identifier);
+    if (!success) throw new Error("Rate limit exceeded. Please try again later.");
+  }
 
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
@@ -165,7 +182,7 @@ A: ${answers[i] || "No answer provided"}`
 
   let evalResult;
   try {
-    const result = await model.generateContent(prompt);
+    const result = await withRetries(() => model.generateContent(prompt));
     const text = result.response.text();
     const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
     evalResult = JSON.parse(cleanedText);

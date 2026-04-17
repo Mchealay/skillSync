@@ -2,12 +2,19 @@
 
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+import { model, withRetries } from "@/lib/gemini";
+import { ratelimit } from "@/lib/ratelimit";
 
 export const generateAIInsights = async (industry) => {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  if (ratelimit) {
+    const identifier = userId;
+    const { success } = await ratelimit.limit(identifier);
+    if (!success) throw new Error("Rate limit exceeded. Please try again later.");
+  }
+
   const prompt = `
           Analyze the current state of the ${industry} industry and provide insights in ONLY the following JSON format without any additional notes or explanations:
           {
@@ -28,7 +35,7 @@ export const generateAIInsights = async (industry) => {
           Include at least 5 skills and trends.
         `;
 
-  const result = await model.generateContent(prompt);
+  const result = await withRetries(() => model.generateContent(prompt));
   const response = result.response;
   const text = response.text();
   const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
@@ -49,12 +56,18 @@ export async function getIndustryInsights() {
 
   if (!user) throw new Error("User not found");
 
-  // If no insights exist, generate them
-  if (!user.industryInsight) {
+  // If no insights exist or insights are a placeholder (empty salaryRanges), generate them
+  if (!user.industryInsight || user.industryInsight.salaryRanges.length === 0) {
     const insights = await generateAIInsights(user.industry);
 
-    const industryInsight = await db.industryInsight.create({
-      data: {
+    const industryInsight = await db.industryInsight.upsert({
+      where: { industry: user.industry },
+      update: {
+        ...insights,
+        lastUpdated: new Date(),
+        nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+      create: {
         industry: user.industry,
         ...insights,
         nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),

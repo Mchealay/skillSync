@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -121,33 +122,41 @@ const OnboardingForm = ({ industries }) => {
               )}
             </div>
 
-            {watchIndustry && (
-              <div className="space-y-2">
-                <Label htmlFor="subIndustry">Specialization</Label>
-                <Select
-                  onValueChange={(value) => setValue("subIndustry", value)}
+            <AnimatePresence>
+              {watchIndustry && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-2 overflow-hidden"
                 >
-                  <SelectTrigger id="subIndustry">
-                    <SelectValue placeholder="Select your specialization" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Specializations</SelectLabel>
-                      {selectedIndustry?.subIndustries.map((sub) => (
-                        <SelectItem key={sub} value={sub}>
-                          {sub}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {errors.subIndustry && (
-                  <p className="text-sm text-red-500">
-                    {errors.subIndustry.message}
-                  </p>
-                )}
-              </div>
-            )}
+                  <Label htmlFor="subIndustry">Specialization</Label>
+                  <Select
+                    onValueChange={(value) => setValue("subIndustry", value)}
+                  >
+                    <SelectTrigger id="subIndustry" className="card-hover">
+                      <SelectValue placeholder="Select your specialization" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Specializations</SelectLabel>
+                        {selectedIndustry?.subIndustries.map((sub) => (
+                          <SelectItem key={sub} value={sub}>
+                            {sub}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  {errors.subIndustry && (
+                    <p className="text-sm text-red-500">
+                      {errors.subIndustry.message}
+                    </p>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="space-y-2">
               <Label htmlFor="experience">Years of Experience</Label>
