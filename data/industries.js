@@ -3,6 +3,7 @@ export const industries = [
     id: "tech",
     name: "Technology",
     subIndustries: [
+      "Information Technology",
       "Software Development",
       "IT Services",
       "Cybersecurity",
@@ -16,6 +17,7 @@ export const industries = [
       "IoT (Internet of Things)",
       "Virtual/Augmented Reality",
       "Semiconductor & Electronics",
+      "General Technology",
     ],
   },
   {
