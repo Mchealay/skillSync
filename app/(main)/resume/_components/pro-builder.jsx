@@ -36,7 +36,7 @@ const STEPS = [
 export default function ProResumeBuilder({ initialData }) {
   const { user } = useUser();
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(initialData ? 3 : 1);
   const [selectedTemplate, setSelectedTemplate] = useState("professional");
   const [jobDescription, setJobDescription] = useState("");
   const [resumeData, setResumeData] = useState(initialData || null);
