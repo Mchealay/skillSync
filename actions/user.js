@@ -8,6 +8,8 @@ import { generateAIInsights } from "./dashboard";
 
 import { inngest } from "@/lib/inngest/client";
 import { logger } from "@/lib/logger";
+import { actionSuccess, actionError } from "@/lib/api-response";
+
 
 const updateUserSchema = z.object({
   industry: z.string().min(1, "Industry is required"),
@@ -19,18 +21,18 @@ const updateUserSchema = z.object({
 
 export async function updateUser(data) {
   const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  // Server-side validation
-  const validatedData = updateUserSchema.parse(data);
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  if (!userId) return actionError("Unauthorized");
 
   try {
+    // Server-side validation
+    const validatedData = updateUserSchema.parse(data);
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) return actionError("User not found");
+
     logger.info({
       msg: "Starting user profile update",
       userId: user.id,
@@ -46,7 +48,6 @@ export async function updateUser(data) {
         });
 
         // If it doesn't exist, create a default placeholder
-        // This will be replaced by actual AI data when the Inngest background job finishes
         if (!existingInsight) {
           await tx.industryInsight.create({
             data: {
@@ -83,8 +84,7 @@ export async function updateUser(data) {
       }
     );
 
-    // Trigger Inngest function to sync industry insights in background
-    // We don't await this to keep the response snappy and resilient to background job failures
+    // Trigger Inngest function
     inngest
       .send({
         name: "app/industry.sync",
@@ -106,20 +106,20 @@ export async function updateUser(data) {
     });
 
     revalidatePath("/");
-    return { success: true, user: result };
+    return actionSuccess(result);
   } catch (error) {
     logger.error({
       msg: "Error updating user and industry",
       error: error.message,
-      userId: user.id,
     });
-    throw new Error("Failed to update profile");
+    return actionError(error instanceof z.ZodError ? "Invalid input data" : "Failed to update profile");
   }
 }
 
+
 export async function getUserOnboardingStatus() {
   const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  if (!userId) return actionError("Unauthorized");
 
   try {
     const user = await db.user.findUnique({
@@ -129,11 +129,15 @@ export async function getUserOnboardingStatus() {
       },
     });
 
-    return {
+    return actionSuccess({
       isOnboarded: !!user?.industry,
-    };
+    });
   } catch (error) {
-    console.error("Error checking onboarding status:", error);
-    throw new Error("Failed to check onboarding status");
+    logger.error({
+      msg: "Error checking onboarding status",
+      error: error.message,
+    });
+    return actionError("Failed to check onboarding status");
   }
 }
+

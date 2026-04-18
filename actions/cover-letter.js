@@ -54,6 +54,7 @@ export async function generateCoverLetter(data) {
         jobDescription: data.jobDescription,
         companyName: data.companyName,
         jobTitle: data.jobTitle,
+        templateId: data.templateId || "professional",
         status: "completed",
         userId: user.id,
       },
@@ -100,6 +101,9 @@ export async function getCoverLetter(id) {
     where: {
       id,
       userId: user.id,
+    },
+    include: {
+      user: true,
     },
   });
 }

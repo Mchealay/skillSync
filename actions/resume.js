@@ -175,7 +175,7 @@ export async function getResume() {
   });
 }
 
-export async function improveWithAI({ current, type }) {
+export async function generateStructuredResume(jobDescription = "") {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
@@ -187,36 +187,73 @@ export async function improveWithAI({ current, type }) {
 
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
-    include: {
-      industryInsight: true,
-    },
+    include: { industryInsight: true },
   });
 
   if (!user) throw new Error("User not found");
 
   const prompt = `
-    As an expert resume writer, improve the following ${type} description for a ${user.industry} professional.
-    Make it more impactful, quantifiable, and aligned with industry standards.
-    Current content: "${current}"
+    You are an expert resume writer. Generate a complete, professional, ATS-optimized resume in JSON format for the following candidate.
+    ${jobDescription ? `Tailor the resume specifically for this job description: "${jobDescription}"` : ""}
 
-    Requirements:
-    1. Use action verbs
-    2. Include metrics and results where possible
-    3. Highlight relevant technical skills
-    4. Keep it concise but detailed
-    5. Focus on achievements over responsibilities
-    6. Use industry-specific keywords
-    
-    Format the response as a single paragraph without any additional text or explanations.
+    Candidate Profile:
+    - Name: ${user.name || "The Candidate"}
+    - Industry: ${user.industry || "General"}
+    - Experience: ${user.experience ?? 0} years
+    - Skills: ${user.skills?.join(", ") || "Not specified"}
+    - Bio: ${user.bio || "Not provided"}
+
+    JSON Structure Required:
+    {
+      "fullName": "string",
+      "contactInfo": {
+        "email": "string",
+        "mobile": "string",
+        "linkedin": "string"
+      },
+      "summary": "3-4 premium sentences",
+      "skills": ["skill1", "skill2", ...],
+      "experience": [
+        { "title": "string", "organization": "string", "startDate": "string", "endDate": "string", "current": boolean, "description": "3-4 achievement bullet points" }
+      ],
+      "education": [
+        { "title": "string", "organization": "string", "startDate": "string", "endDate": "string" }
+      ],
+      "projects": [
+        { "title": "string", "organization": "string", "startDate": "string", "endDate": "string", "description": "string" }
+      ]
+    }
+
+    Return ONLY the raw JSON. No markdown fences.
   `;
 
   try {
     const result = await withRetries(() => model.generateContent(prompt));
-    const response = result.response;
-    const improvedContent = response.text().trim();
-    return improvedContent;
+    const text = result.response.text().trim();
+    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+    const data = JSON.parse(cleanedText);
+
+    return data;
   } catch (error) {
-    console.error("Error improving content:", error);
-    throw new Error("Failed to improve content");
+    console.error("Error generating structured resume:", error);
+    throw new Error("Failed to generate resume data");
   }
 }
+
+export async function updateResumeSettings({ templateId, jobDescription }) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) throw new Error("User not found");
+
+  return await db.resume.upsert({
+    where: { userId: user.id },
+    update: { templateId, jobDescription },
+    create: { userId: user.id, content: "", templateId, jobDescription },
+  });
+}
+

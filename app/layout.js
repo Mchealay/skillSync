@@ -22,9 +22,13 @@ export const metadata = {
   },
 };
 
+import { CSPostHogProvider } from "./providers";
+
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider appearance={{ baseTheme: dark }}>
+      <CSPostHogProvider>
+
       <html lang="en" suppressHydrationWarning className="dark">
         <head>
           <Script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" strategy="beforeInteractive"/>
@@ -52,25 +56,30 @@ export default function RootLayout({ children }) {
           <meta name="twitter:description" content={metadata.description} />
           <meta name="twitter:image" content="https://skillsync.com/og-image.png" />
         </head>
-        <body className={`${inter.className}`} >
+        <body className={`${inter.className} min-h-screen relative`} >
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >
+            <div className="grid-background" />
             <Header />
-            <main className="min-h-screen">{children}</main>
+            <main className="min-h-screen relative z-10">
+              {children}
+            </main>
             <Toaster richColors />
 
-            <footer className="bg-muted/50 py-10">
-              <div className="container mx-auto px-4 text-center text-gray-200">
-            <Footer/>
+            <footer className="glass border-none py-12 relative z-10">
+              <div className="container mx-auto px-4">
+                <Footer/>
               </div>
             </footer>
           </ThemeProvider>
         </body>
+
       </html>
+      </CSPostHogProvider>
     </ClerkProvider>
   );
 }

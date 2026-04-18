@@ -6,22 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
-const CoverLetterPreview = ({ content }) => {
-  const [editableContent, setEditableContent] = useState(content);
+const CoverLetterPreview = ({ type = "coverLetter", data }) => {
+  const [editableContent, setEditableContent] = useState(data?.content);
   const pdfRef = useRef();
 
   const handleDownload = () => {
     if (!pdfRef.current) return;
 
-    html2pdf()
-      .from(pdfRef.current)
-      .set({
-        margin: 0.5,
-        filename: "cover-letter.pdf",
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-      })
-      .save();
+    const opt = {
+      margin: 0,
+      filename: "cover-letter.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+
+    html2pdf().from(pdfRef.current).set(opt).save();
   };
 
   const handleCopy = async () => {
@@ -33,39 +33,59 @@ const CoverLetterPreview = ({ content }) => {
     }
   };
 
-  return (
-    <div className="space-y-4">
-      {/* Editable Textarea */}
-      <Textarea
-        className="h-[500px] font-mono bg-white text-black"
-        value={editableContent}
-        onChange={(e) => setEditableContent(e.target.value)}
-      />
+  const rendererData = {
+    ...data,
+    content: editableContent,
+  };
 
-      {/* PDF Render Area (Hidden) */}
-      <div className="hidden">
-        <div
-          ref={pdfRef}
-          style={{
-            whiteSpace: "pre-wrap",
-            fontFamily: "sans-serif",
-            fontSize: "14px",
-            lineHeight: "1.5",
-            padding: "20px",
-            color: "#000",
-          }}
-        >
-          {editableContent}
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      {/* Editor Section */}
+      <div className="space-y-6">
+        <div className="flex flex-col gap-2">
+           <h2 className="text-2xl font-black gradient-title">Edit Draft</h2>
+           <p className="text-muted-foreground text-sm">Refine your AI-generated letter below. Changes reflect instantly in the template.</p>
+        </div>
+        
+        <Textarea
+          className="h-[600px] font-medium leading-relaxed bg-card/20 border-white/5 p-6 focus-visible:ring-primary shadow-2xl"
+          value={editableContent}
+          onChange={(e) => setEditableContent(e.target.value)}
+        />
+
+        <div className="flex gap-4">
+          <Button variant="outline" className="flex-1 glass" onClick={handleCopy}>
+            📋 Copy Text
+          </Button>
+          <Button className="flex-1 bg-primary" onClick={handleDownload}>
+            📄 Download Premium PDF
+          </Button>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-4">
-        <Button onClick={handleDownload}>📄 Download PDF</Button>
-        <Button onClick={handleCopy}>📋 Copy to Clipboard</Button>
+      {/* Preview Section */}
+      <div className="sticky top-24 space-y-6">
+        <div className="flex flex-col gap-2">
+           <h2 className="text-2xl font-black gradient-title">Live Template Preview</h2>
+           <p className="text-muted-foreground text-sm">This is how your document will look when exported. (Matched to Professional Style)</p>
+        </div>
+        
+        <div className="bg-slate-200 p-8 rounded-2xl shadow-inner max-h-[800px] overflow-y-auto">
+           <div className="shadow-2xl origin-top scale-[0.9] -mb-10 lg:scale-100 lg:mb-0">
+             <div ref={pdfRef}>
+                <CoverLetterRenderer 
+                   data={rendererData} 
+                   templateId={data?.templateId || "professional"} 
+                />
+             </div>
+           </div>
+        </div>
       </div>
     </div>
   );
 };
+
+import { CoverLetterRenderer } from "@/components/cover-letter-renderer";
+
 
 export default CoverLetterPreview;
