@@ -3,28 +3,20 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { model, withRetries } from "@/lib/gemini";
+import { checkUser } from "@/lib/checkUser";
 
 import { ratelimit } from "@/lib/ratelimit";
 
 export async function generateQuiz() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const user = await checkUser();
+
+  if (!user) throw new Error("Unauthorized");
 
   if (ratelimit) {
-    const identifier = userId;
+    const identifier = user.clerkUserId;
     const { success } = await ratelimit.limit(identifier);
     if (!success) throw new Error("Rate limit exceeded. Please try again later.");
   }
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-    select: {
-      industry: true,
-      skills: true,
-    },
-  });
-
-  if (!user) throw new Error("User not found");
 
   const prompt = `
     Generate 8 realistic interview questions for a ${user.industry || "general"} professional${
@@ -70,21 +62,14 @@ export async function generateQuiz() {
  * Returns structured feedback with score, strengths, improvements, and a model answer.
  */
 export async function analyzeAnswer({ question, answer, type }) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   if (ratelimit) {
-    const identifier = userId;
+    const identifier = user.clerkUserId;
     const { success } = await ratelimit.limit(identifier);
     if (!success) throw new Error("Rate limit exceeded. Please try again later.");
   }
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-    select: { industry: true, skills: true },
-  });
-
-  if (!user) throw new Error("User not found");
 
   if (!answer || answer.trim().length < 5) {
     return {
@@ -138,20 +123,14 @@ export async function analyzeAnswer({ question, answer, type }) {
 }
 
 export async function saveQuizResult(questions, answers) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   if (ratelimit) {
-    const identifier = userId;
+    const identifier = user.clerkUserId;
     const { success } = await ratelimit.limit(identifier);
     if (!success) throw new Error("Rate limit exceeded. Please try again later.");
   }
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
 
   const prompt = `
     You are an expert technical interviewer for a ${user.industry} professional.
@@ -218,14 +197,8 @@ A: ${answers[i] || "No answer provided"}`
 }
 
 export async function getAssessments() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   try {
     const assessments = await db.assessment.findMany({

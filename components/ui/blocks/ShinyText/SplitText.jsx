@@ -7,6 +7,7 @@ gsap.registerPlugin(ScrollTrigger, GSAPSplitText);
 
 const SplitText = ({
   text,
+  id,
   className = "",
   delay = 100,
   duration = 0.6,
@@ -102,6 +103,7 @@ const SplitText = ({
   return (
     <p
       ref={ref}
+      id={id}
       className={`split-parent text-center overflow-hidden inline-block whitespace-normal ${className}`}
       style={{
         textAlign,

@@ -31,8 +31,6 @@ export default function RootLayout({ children }) {
 
       <html lang="en" suppressHydrationWarning className="dark">
         <head>
-          <Script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" strategy="beforeInteractive"/>
-          <Script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js" strategy="beforeInteractive"/>
           <link rel="icon" href="/skill.png" sizes="any" />
           {/* SEO Meta Tags */}
           <meta name="description" content={metadata.description} />

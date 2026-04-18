@@ -30,6 +30,13 @@ import {
   useInView,
 } from "framer-motion";
 import { useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 
 const cardGradients = [
   "linear-gradient(to bottom right, #0e001a, #1e0033)", // Very dark purple
@@ -212,13 +219,13 @@ export default function LandingPage() {
       });
     });
 
-    gsap.from("#how-section", {
+    gsap.from("#how-it-works", {
       scale: 0.8,
       opacity: 0,
       duration: 0.7,
       ease: "power2.out",
       scrollTrigger: {
-        trigger: "#how-section",
+        trigger: "#how-it-works",
         start: "top 80%",
       },
     });
@@ -291,6 +298,7 @@ export default function LandingPage() {
             <SplitText  /> */}
             <SplitText
               text="AI Features to Accelerate Your Career"
+              id="features-title"
               className="text-5xl font-semibold text-center tracking-tighter ml-[15%] mr-auto mb-12"
               delay={100}
               duration={0.2}
@@ -338,7 +346,7 @@ export default function LandingPage() {
                     whileTap={{ scale: 0.98 }}
                   >
                     <Card
-                      className="border border-slate-800/60 overflow-hidden shadow-lg group 
+                      className="feature-card border border-slate-800/60 overflow-hidden shadow-lg group 
                                hover:shadow-xl hover:border-primary/30 transition-all duration-500 
                                flex flex-col h-full hover:shadow-primary/10"
                       style={{
@@ -647,7 +655,7 @@ export default function LandingPage() {
                     stiffness: 50
                   }}
                   viewport={{ once: true, margin: "-100px" }}
-                  className="flex flex-col items-center text-center space-y-4 relative"
+                  className="how-card flex flex-col items-center text-center space-y-4 relative"
                   whileHover={{ y: -8 }}
                 >
                   {/* Step number indicator */}

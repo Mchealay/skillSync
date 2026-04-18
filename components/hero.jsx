@@ -16,6 +16,8 @@ import {
   useTransform,
 } from "framer-motion";
 import { ArrowRight, Sparkles, Star, MousePointerClick } from "lucide-react";
+import { gsap } from "gsap";
+
 
 // Create a reusable sequence animation component
 const SequenceItem = ({ children, delay = 0, animation = "slideUp" }) => {
@@ -223,7 +225,7 @@ useEffect(() => {
         {/* Main content with sequence animations */}
         <div className="space-y-6 mx-auto pt-32 pb-4">
           <SequenceItem animation="slideUp" delay={0.1}>
-            <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl xl:text-6xl ">
+            <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl xl:text-6xl gradient-title">
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -244,7 +246,7 @@ useEffect(() => {
           </SequenceItem>
 
           <SequenceItem animation="scale" delay={0.8}>
-            <div className="relative">
+            <div className="relative" id="hero-description">
               <ShinyText
                 text="AI-powered career assistant for smarter job search, resume
                 optimization, mock interviews, and industry insights."
