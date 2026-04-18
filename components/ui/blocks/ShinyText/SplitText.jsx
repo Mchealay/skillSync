@@ -1,9 +1,9 @@
 import { useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText as GSAPSplitText } from "gsap/SplitText";
+import SplitType from "split-type";
 
-gsap.registerPlugin(ScrollTrigger, GSAPSplitText);
+gsap.registerPlugin(ScrollTrigger);
 
 const SplitText = ({
   text,
@@ -29,26 +29,18 @@ const SplitText = ({
     const absoluteLines = splitType === "lines";
     if (absoluteLines) el.style.position = "relative";
 
-    const splitter = new GSAPSplitText(el, {
-      type: splitType,
-      absolute: absoluteLines,
-      linesClass: "split-line",
+    const splitter = new SplitType(el, {
+      types: splitType,
+      tagName: "span",
     });
 
-    let targets;
-    switch (splitType) {
-      case "lines":
-        targets = splitter.lines;
-        break;
-      case "words":
-        targets = splitter.words;
-        break;
-      case "words, chars":
-        targets = [...splitter.words, ...splitter.chars];
-        break;
-      default:
-        targets = splitter.chars;
-    }
+    let targets = [];
+    if (splitType.includes("chars")) targets = [...targets, ...splitter.chars];
+    if (splitType.includes("words")) targets = [...targets, ...splitter.words];
+    if (splitType.includes("lines")) targets = [...targets, ...splitter.lines];
+    
+    // Fallback if no specific type is matched but properties exist
+    if (targets.length === 0) targets = splitter.chars || splitter.words || splitter.lines || [];
 
     targets.forEach((t) => {
       (t).style.willChange = "transform, opacity";

@@ -165,85 +165,8 @@ export default function LandingPage() {
     }
   }, [isFeaturesSectionInView, featuresFadeIn]);
 
-  useLayoutEffect(() => {
-
-
-    gsap.from("#features-title", {
-      scale: 0.8,
-      opacity: 0,
-      duration: 0.7,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: "#features-title",
-        start: "top 80%",
-      },
-    });
-
-    gsap.from(".feature-card", {
-      y: 60,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.2,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: ".feature-card",
-        start: "top 85%",
-      },
-    });
-
-    // Stats number animation
-    const statEls = document.querySelectorAll('.stat-number');
-    statEls.forEach((el) => {
-      const target = parseInt(el.getAttribute('data-target'));
-      let suffix = el.textContent.replace(/\d+/g, '');
-      gsap.fromTo(el, {
-        innerText: 0
-      }, {
-        innerText: target,
-        duration: 1.5,
-        ease: 'power1.out',
-        snap: { innerText: 1 },
-        scrollTrigger: {
-          trigger: el,
-          start: 'top 90%'
-        },
-        onUpdate: function () {
-          if (suffix === '+') {
-            el.textContent = Math.floor(el.innerText) + '+';
-          } else if (suffix === '%') {
-            el.textContent = Math.floor(el.innerText) + '%';
-          } else if (suffix === '/7') {
-            el.textContent = Math.floor(el.innerText) + '/7';
-          }
-        }
-      });
-    });
-
-    gsap.from("#how-it-works", {
-      scale: 0.8,
-      opacity: 0,
-      duration: 0.7,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: "#how-it-works",
-        start: "top 80%",
-      },
-    });
-    gsap.from(".how-card", {
-      y: 60,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.2,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: ".how-card",
-        start: "top 85%",
-      },
-    });
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, []);
+  // Page uses Framer Motion (useInView, useAnimation) for component entry animations
+  // GSAP is only used via standalone components like SplitText
 
   return (
     <>
