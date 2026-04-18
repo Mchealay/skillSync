@@ -40,6 +40,7 @@ export default function ProResumeBuilder({ initialData }) {
   const [selectedTemplate, setSelectedTemplate] = useState("professional");
   const [jobDescription, setJobDescription] = useState("");
   const [resumeData, setResumeData] = useState(initialData || null);
+  const [jsonString, setJsonString] = useState(JSON.stringify(initialData, null, 2) || "");
   const [isGenerating, setIsGenerating] = useState(false);
 
   const {
@@ -57,6 +58,7 @@ export default function ProResumeBuilder({ initialData }) {
     try {
       const data = await generateStructuredResume(jobDescription);
       setResumeData(data);
+      setJsonString(JSON.stringify(data, null, 2));
       setCurrentStep(3);
       toast.success("Resume tailored successfully!");
     } catch (error) {
@@ -312,7 +314,7 @@ export default function ProResumeBuilder({ initialData }) {
           </motion.div>
         )}
 
-        {/* Step 3: Finalize */}
+        {/* Step 3: Finalize & Edit */}
         {currentStep === 3 && (
           <motion.div
             key="step3"
@@ -324,26 +326,66 @@ export default function ProResumeBuilder({ initialData }) {
             <div className="flex justify-between items-center bg-background/80 backdrop-blur-md sticky top-0 py-4 z-50 border-b">
                <div className="flex items-center gap-4">
                  <Button variant="outline" size="sm" onClick={() => setCurrentStep(2)}>
-                   <ChevronLeft className="w-4 h-4 mr-2" /> Back to Edit
+                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                  </Button>
                  <div className="hidden sm:block">
-                   <h2 className="text-lg font-bold">Review Your Professional Resume</h2>
+                   <h2 className="text-lg font-bold">Refine & Finalize</h2>
                    <p className="text-xs text-muted-foreground">Template: <span className="capitalize text-primary font-medium">{selectedTemplate}</span></p>
                  </div>
                </div>
                <div className="flex items-center gap-2">
                  <Button variant="outline" size="sm" onClick={generatePDF}>
-                   <Download className="w-4 h-4 mr-2" /> PDF
+                   <Download className="w-4 h-4 mr-2" /> Download PDF
                  </Button>
                  <Button size="sm" onClick={handleFinalize} disabled={isSaving}>
-                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Finalize & Save"}
+                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save & Continue"}
                  </Button>
                </div>
             </div>
 
-            <div className="bg-gray-100 dark:bg-gray-900 p-8 rounded-2xl shadow-inner min-h-[1000px] flex justify-center">
-               <div className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm]">
-                 <ResumeRenderer data={resumeData} templateId={selectedTemplate} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+               {/* ✍️ Editor Section */}
+               <div className="space-y-6">
+                 <div className="flex flex-col gap-2">
+                    <h3 className="text-2xl font-black gradient-title">Edit Resume Data</h3>
+                    <p className="text-muted-foreground text-sm">Fine-tune the content below. Changes reflect instantly in the live preview.</p>
+                 </div>
+                 
+                 <div className="relative group">
+                    <Textarea
+                      className="h-[800px] font-mono text-xs leading-relaxed bg-card/20 border-white/5 p-6 focus-visible:ring-primary shadow-2xl transition-all duration-300 group-hover:bg-card/30"
+                      value={jsonString}
+                      onChange={(e) => {
+                        const newString = e.target.value;
+                        setJsonString(newString);
+                        try {
+                          const parsed = JSON.parse(newString);
+                          setResumeData(parsed);
+                        } catch (err) {
+                          // Silently fail preview update if JSON is invalid while typing
+                        }
+                      }}
+                    />
+                    
+                    {/* Floating help tip */}
+                    <div className="absolute bottom-4 right-4 bg-primary/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-primary/20 text-[10px] font-bold text-primary flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Zap className="w-3 h-3" /> Valid JSON Required
+                    </div>
+                 </div>
+               </div>
+
+               {/* 🖼️ Live Preview Section */}
+               <div className="sticky top-24 space-y-6">
+                 <div className="flex flex-col gap-2">
+                    <h3 className="text-2xl font-black gradient-title">Live Preview</h3>
+                    <p className="text-muted-foreground text-sm">Professional orientation (A4 format). Best for standard recruitment.</p>
+                 </div>
+
+                 <div className="bg-gray-100 dark:bg-gray-900 p-8 rounded-2xl shadow-inner max-h-[900px] overflow-y-auto flex justify-center border-2 border-dashed border-primary/10">
+                    <div className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] origin-top scale-[0.9] lg:scale-100 -mb-20 lg:mb-0 transition-transform duration-500">
+                      <ResumeRenderer data={resumeData} templateId={selectedTemplate} />
+                    </div>
+                 </div>
                </div>
             </div>
           </motion.div>
