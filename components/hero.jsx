@@ -168,23 +168,29 @@ useEffect(() => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-   useEffect(()=>{
-    const text= new SplitType(".gradient-title")
-    let t1=gsap.timeline()
-    t1.from(".char",{ 
-      y: 50,
+  useEffect(() => {
+    const text = new SplitType(".gradient-title", { types: "chars" });
+    let t1 = gsap.timeline();
+    
+    t1.from(".char", {
+      y: 20,
+      opacity: 0,
+      duration: 0.4,
+      stagger: 0.02,
+      ease: "power2.out",
+    });
+
+    t1.from("#hero-description", {
+      y: 20,
       opacity: 0,
       duration: 0.5,
-      stagger: 0.05,
       ease: "power2.out",
-    })
-    t1.from("#hero-description", {
-      scale:0,
-      opacity: 0,
-      duration: 0.5,    
-      ease: "power2.out",
-    })
-  },[])
+    }, "-=0.2");
+
+    return () => {
+      text.revert();
+    };
+  }, []);
 
 
   // Decorative elements for visual flair
@@ -225,23 +231,9 @@ useEffect(() => {
         {/* Main content with sequence animations */}
         <div className="space-y-6 mx-auto pt-32 pb-4">
           <SequenceItem animation="slideUp" delay={0.1}>
-            <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl xl:text-6xl gradient-title">
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1.2, delay: 0.2 }}
-              >
-                Welcome to skillSync
-              </motion.span>
-              <br />
-              <motion.span
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                className="inline-block"
-              >
-                Your AI-Powered Career Assistant
-              </motion.span>
+            <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl xl:text-6xl gradient-title tracking-tight">
+              Welcome to skillSync<br />
+              Your AI-Powered Career Assistant
             </h1>
           </SequenceItem>
 
