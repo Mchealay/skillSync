@@ -4,6 +4,7 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { checkUser } from "@/lib/checkUser";
 import { generateAIInsights } from "./dashboard";
 
 import { inngest } from "@/lib/inngest/client";
@@ -20,18 +21,12 @@ const updateUserSchema = z.object({
 });
 
 export async function updateUser(data) {
-  const { userId } = await auth();
-  if (!userId) return actionError("Unauthorized");
+  const user = await checkUser();
+  if (!user) return actionError("Unauthorized");
 
   try {
     // Server-side validation
     const validatedData = updateUserSchema.parse(data);
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) return actionError("User not found");
 
     logger.info({
       msg: "Starting user profile update",
@@ -118,16 +113,9 @@ export async function updateUser(data) {
 
 
 export async function getUserOnboardingStatus() {
-  const { userId } = await auth();
-  if (!userId) return actionError("Unauthorized");
-
   try {
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-      select: {
-        industry: true,
-      },
-    });
+    const user = await checkUser();
+    if (!user) return actionError("Unauthorized");
 
     return actionSuccess({
       isOnboarded: !!user?.industry,

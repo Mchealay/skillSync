@@ -4,39 +4,40 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { model, withRetries } from "@/lib/gemini";
 import { revalidatePath } from "next/cache";
+import { checkUser } from "@/lib/checkUser";
 
 import { ratelimit } from "@/lib/ratelimit";
 
 export async function generateResumeWithAI() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   if (ratelimit) {
-    const identifier = userId;
+    const identifier = user.clerkUserId;
     const { success } = await ratelimit.limit(identifier);
     if (!success) throw new Error("Rate limit exceeded. Please try again later.");
   }
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+  const userWithInsights = await db.user.findUnique({
+    where: { id: user.id },
     include: { industryInsight: true },
   });
 
-  if (!user) throw new Error("User not found");
+  if (!userWithInsights) throw new Error("User not found");
 
   const prompt = `
 You are an expert resume writer and career coach. Generate a complete, professional, ATS-optimised resume in markdown format for the following candidate.
 
 Candidate Profile:
-- Name: ${user.name || "The Candidate"}
-- Industry: ${user.industry || "General"}
-- Years of Experience: ${user.experience ?? 0}
-- Skills: ${user.skills?.join(", ") || "Not specified"}
-- Professional Bio / Summary: ${user.bio || "Not provided"}
+- Name: ${userWithInsights.name || "The Candidate"}
+- Industry: ${userWithInsights.industry || "General"}
+- Years of Experience: ${userWithInsights.experience ?? 0}
+- Skills: ${userWithInsights.skills?.join(", ") || "Not specified"}
+- Professional Bio / Summary: ${userWithInsights.bio || "Not provided"}
 ${
-  user.industryInsight
-    ? `- Top skills in their industry: ${user.industryInsight.topSkills?.join(", ")}
-- Key industry trends: ${user.industryInsight.keyTrends?.slice(0, 3).join("; ")}`
+  userWithInsights.industryInsight
+    ? `- Top skills in their industry: ${userWithInsights.industryInsight.topSkills?.join(", ")}
+- Key industry trends: ${userWithInsights.industryInsight.keyTrends?.slice(0, 3).join("; ")}`
     : ""
 }
 
@@ -105,9 +106,9 @@ IMPORTANT:
     const content = result.response.text().trim();
 
     const resume = await db.resume.upsert({
-      where: { userId: user.id },
+      where: { userId: userWithInsights.id },
       update: { content },
-      create: { userId: user.id, content },
+      create: { userId: userWithInsights.id, content },
     });
 
     revalidatePath("/resume");
@@ -127,14 +128,8 @@ IMPORTANT:
 }
 
 export async function saveResume(content) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   try {
     const resume = await db.resume.upsert({
@@ -159,14 +154,8 @@ export async function saveResume(content) {
 }
 
 export async function getResume() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   return await db.resume.findUnique({
     where: {
@@ -176,32 +165,33 @@ export async function getResume() {
 }
 
 export async function generateStructuredResume(jobDescription = "") {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   if (ratelimit) {
-    const identifier = userId;
+    const identifier = user.clerkUserId;
     const { success } = await ratelimit.limit(identifier);
     if (!success) throw new Error("Rate limit exceeded. Please try again later.");
   }
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+  // Reload user to include industry insights
+  const userWithInsights = await db.user.findUnique({
+    where: { id: user.id },
     include: { industryInsight: true },
   });
 
-  if (!user) throw new Error("User not found");
+  if (!userWithInsights) throw new Error("User not found");
 
   const prompt = `
     You are an expert resume writer. Generate a complete, professional, ATS-optimized resume in JSON format for the following candidate.
     ${jobDescription ? `Tailor the resume specifically for this job description: "${jobDescription}"` : ""}
 
     Candidate Profile:
-    - Name: ${user.name || "The Candidate"}
-    - Industry: ${user.industry || "General"}
-    - Experience: ${user.experience ?? 0} years
-    - Skills: ${user.skills?.join(", ") || "Not specified"}
-    - Bio: ${user.bio || "Not provided"}
+    - Name: ${userWithInsights.name || "The Candidate"}
+    - Industry: ${userWithInsights.industry || "General"}
+    - Experience: ${userWithInsights.experience ?? 0} years
+    - Skills: ${userWithInsights.skills?.join(", ") || "Not specified"}
+    - Bio: ${userWithInsights.bio || "Not provided"}
 
     JSON Structure Required:
     {
@@ -241,14 +231,8 @@ export async function generateStructuredResume(jobDescription = "") {
 }
 
 export async function updateResumeSettings({ templateId, jobDescription }) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   return await db.resume.upsert({
     where: { userId: user.id },

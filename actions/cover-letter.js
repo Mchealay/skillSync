@@ -3,24 +3,19 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { model, withRetries } from "@/lib/gemini";
+import { checkUser } from "@/lib/checkUser";
 
 import { ratelimit } from "@/lib/ratelimit";
 
 export async function generateCoverLetter(data) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   if (ratelimit) {
-    const identifier = userId;
+    const identifier = user.clerkUserId;
     const { success } = await ratelimit.limit(identifier);
     if (!success) throw new Error("Rate limit exceeded. Please try again later.");
   }
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
 
   const prompt = `
     Write a ${data.tone || "professional"} cover letter for a ${data.jobTitle} position at ${
@@ -68,14 +63,8 @@ export async function generateCoverLetter(data) {
 }
 
 export async function getCoverLetters() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   return await db.coverLetter.findMany({
     where: {
@@ -88,14 +77,8 @@ export async function getCoverLetters() {
 }
 
 export async function getCoverLetter(id) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   return await db.coverLetter.findUnique({
     where: {
@@ -109,14 +92,8 @@ export async function getCoverLetter(id) {
 }
 
 export async function deleteCoverLetter(id) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await checkUser();
+  if (!user) throw new Error("Unauthorized");
 
   return await db.coverLetter.delete({
     where: {

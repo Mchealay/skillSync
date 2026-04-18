@@ -4,6 +4,7 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { model, withRetries } from "@/lib/gemini";
 import { ratelimit } from "@/lib/ratelimit";
+import { checkUser } from "@/lib/checkUser";
 import { z } from "zod";
 import { actionSuccess, actionError } from "@/lib/api-response";
 import { logger } from "@/lib/logger";
@@ -12,8 +13,10 @@ import { logger } from "@/lib/logger";
 import { generateIndustryInsightsData } from "@/services/industry.service";
 
 export const generateAIInsights = async (industry) => {
-  const { userId } = await auth();
-  if (!userId) return actionError("Unauthorized");
+  const user = await checkUser();
+  if (!user) return actionError("Unauthorized");
+
+  const userId = user.clerkUserId;
 
   try {
     // Validate input
@@ -39,35 +42,35 @@ export const generateAIInsights = async (industry) => {
 
 
 export async function getIndustryInsights() {
-  const { userId } = await auth();
-  if (!userId) return actionError("Unauthorized");
+  const user = await checkUser();
+  if (!user) return actionError("Unauthorized");
 
   try {
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
+    const userWithInsights = await db.user.findUnique({
+      where: { clerkUserId: user.clerkUserId },
       include: {
         industryInsight: true,
       },
     });
 
-    if (!user) return actionError("User not found");
+    if (!userWithInsights) return actionError("User not found");
 
     // If no insights exist or insights are a placeholder (empty salaryRanges), generate them
-    if (!user.industryInsight || user.industryInsight.salaryRanges.length === 0) {
-      const response = await generateAIInsights(user.industry);
+    if (!userWithInsights.industryInsight || userWithInsights.industryInsight.salaryRanges.length === 0) {
+      const response = await generateAIInsights(userWithInsights.industry);
       
       if (!response.success) return response;
       const insights = response.data;
 
       const industryInsight = await db.industryInsight.upsert({
-        where: { industry: user.industry },
+        where: { industry: userWithInsights.industry },
         update: {
           ...insights,
           lastUpdated: new Date(),
           nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
         create: {
-          industry: user.industry,
+          industry: userWithInsights.industry,
           ...insights,
           nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
@@ -76,7 +79,7 @@ export async function getIndustryInsights() {
       return actionSuccess(industryInsight);
     }
 
-    return actionSuccess(user.industryInsight);
+    return actionSuccess(userWithInsights.industryInsight);
   } catch (error) {
     logger.error({
       msg: "Error fetching industry insights",
