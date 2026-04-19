@@ -3,6 +3,7 @@
  * Generic component to render structured resume data into various templates.
  */
 
+"use client";
 import React from "react";
 import { RESUME_TEMPLATES } from "@/lib/resume-templates";
 
@@ -114,18 +115,18 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
 
   const MainContent = () => (
     <div className={styles.main}>
-      {templateId === "executive" && <div className={styles.rightTopAccent}></div>}
+      {templateId === "executive" && <div className={styles.rightBottomAccent}></div>}
       
       {/* Summary */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Profile</h2>
+        <h2 className={styles.sectionTitle}>{templateId === "executive" ? "PROFILE" : "Profile"}</h2>
         <div className="text-[0.95rem] leading-relaxed text-slate-600 font-medium">{summary}</div>
       </div>
 
       {/* Education moved to Main Content exactly under Profile for executive template */}
       {templateId === "executive" && (
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Education</h2>
+          <h2 className={styles.sectionTitle}>EDUCATION</h2>
           <div className="flex flex-col gap-3 w-full">
             {education.map((edu, i) => (
               <div key={i} className={styles.educationItem}>
@@ -139,7 +140,7 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
 
       {/* Work Experience */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Work Experience</h2>
+        <h2 className={styles.sectionTitle}>{templateId === "executive" ? "WORK EXPERIENCE" : "Work Experience"}</h2>
         <div className={templateId === "executive" ? styles.gridTwoCols : styles.content}>
           {experience.length > 0 ? experience.map((item, index) => (
              templateId === "executive" ? (
@@ -191,7 +192,7 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
       {templateId === "executive" && (
         <div className={styles.gridTwoCols}>
           <div className="w-full">
-            <h2 className={styles.sectionTitle}>Skills</h2>
+            <h2 className={styles.sectionTitle}>SKILLS</h2>
             <div className={styles.skillsList}>
               {(Array.isArray(skills) ? skills : skills.split(',')).map((s, i) => (
                 <div key={i} className={styles.skillItem}>{s.trim()}</div>
@@ -199,13 +200,13 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
             </div>
           </div>
           <div className="w-full">
-            <h2 className={styles.sectionTitle}>Languages</h2>
+            <h2 className={styles.sectionTitle}>LANGUAGES</h2>
             <div className="flex flex-col gap-2 w-full">
               {/* Hardcoded Sample Languages to match image - ideally this should be from data */}
-              <div className="text-[11px] font-medium text-gray-700 flex items-center gap-2 before:content-['■'] before:text-[#0e1b34] before:text-[8px]">Indonesian</div>
-              <div className="text-[11px] font-medium text-gray-700 flex items-center gap-2 before:content-['■'] before:text-[#0e1b34] before:text-[8px]">Arabic</div>
-              <div className="text-[11px] font-medium text-gray-700 flex items-center gap-2 before:content-['■'] before:text-[#0e1b34] before:text-[8px]">Spanish</div>
-              <div className="text-[11px] font-medium text-gray-700 flex items-center gap-2 before:content-['■'] before:text-[#0e1b34] before:text-[8px]">French</div>
+              <div className={styles.skillItem}>Indonesian</div>
+              <div className={styles.skillItem}>Arabic</div>
+              <div className={styles.skillItem}>Spanish</div>
+              <div className={styles.skillItem}>French</div>
             </div>
           </div>
         </div>
@@ -213,42 +214,186 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
     </div>
   );
 
+  const YELLOW = "#f5b841";
+  const DARK_BLUE = "#0e1b34";
+
+  const ExecutiveMainContent = () => (
+    <div style={{
+      flex: 1, backgroundColor: "white", padding: "40px 40px 60px",
+      display: "flex", flexDirection: "column", position: "relative", overflowY: "auto"
+    }}>
+      {/* Yellow bottom bar accent */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 28, backgroundColor: YELLOW }} />
+
+      {/* PROFILE */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{
+          fontSize: 16, fontWeight: 900, textTransform: "uppercase",
+          letterSpacing: "0.15em", color: DARK_BLUE,
+          borderBottom: `2px solid ${YELLOW}`, paddingBottom: 6, marginBottom: 12
+        }}>PROFILE</h2>
+        <p style={{ fontSize: 13, lineHeight: 1.7, color: "#444", fontWeight: 400 }}>{summary}</p>
+      </div>
+
+      {/* EDUCATION */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{
+          fontSize: 16, fontWeight: 900, textTransform: "uppercase",
+          letterSpacing: "0.15em", color: DARK_BLUE,
+          borderBottom: `2px solid ${YELLOW}`, paddingBottom: 6, marginBottom: 12
+        }}>EDUCATION</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {education.map((edu, i) => (
+            <div key={i}>
+              <div style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", color: DARK_BLUE, marginBottom: 2 }}>
+                {edu.title}
+              </div>
+              <div style={{ fontSize: 12, color: "#555", fontWeight: 500 }}>
+                • {edu.organization} ({edu.startDate}–{edu.endDate || "Present"})
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* WORK EXPERIENCE — 2 columns */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{
+          fontSize: 16, fontWeight: 900, textTransform: "uppercase",
+          letterSpacing: "0.15em", color: DARK_BLUE,
+          borderBottom: `2px solid ${YELLOW}`, paddingBottom: 6, marginBottom: 12
+        }}>WORK EXPERIENCE</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px" }}>
+          {(experience.length > 0 ? experience : SAMPLES.experience).map((item, index) => (
+            <div key={index} style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", color: DARK_BLUE, marginBottom: 2 }}>
+                {item.title}
+              </div>
+              <div style={{ fontSize: 12, color: "#888", fontWeight: 500, marginBottom: 2 }}>
+                {item.organization}
+              </div>
+              <div style={{ fontSize: 11, color: "#aaa", marginBottom: 6 }}>
+                {item.startDate} — {item.current ? "Present" : item.endDate}
+              </div>
+              <ul style={{ paddingLeft: 16, margin: 0 }}>
+                {item.description?.split('\n').filter(l => l.trim()).map((line, i) => (
+                  <li key={i} style={{ fontSize: 11.5, color: "#555", lineHeight: 1.6, marginBottom: 3 }}>
+                    {line.replace(/^[•\-\*]\s*/, '')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* SKILLS + LANGUAGES side by side */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", marginBottom: 36 }}>
+        <div>
+          <h2 style={{
+            fontSize: 16, fontWeight: 900, textTransform: "uppercase",
+            letterSpacing: "0.15em", color: DARK_BLUE,
+            borderBottom: `2px solid ${YELLOW}`, paddingBottom: 6, marginBottom: 12
+          }}>SKILLS</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {(Array.isArray(skills) ? skills : skills.split(',')).map((s, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#444", fontWeight: 500 }}>
+                <span style={{ color: DARK_BLUE, fontSize: 8 }}>■</span>
+                {s.trim()}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h2 style={{
+            fontSize: 16, fontWeight: 900, textTransform: "uppercase",
+            letterSpacing: "0.15em", color: DARK_BLUE,
+            borderBottom: `2px solid ${YELLOW}`, paddingBottom: 6, marginBottom: 12
+          }}>LANGUAGES</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {(finalData.languages || ["Indonesian", "Arabic", "Spanish", "French"]).map((lang, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#444", fontWeight: 500 }}>
+                <span style={{ color: DARK_BLUE, fontSize: 8 }}>■</span>
+                {lang}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+
+
   const ExecutiveSidebar = () => (
-    <div className={styles.sidebar}>
-      <div className={styles.sidebarTopAccent}></div>
-      
-      <div className={styles.photoWrapper}>
-        <img 
-           src={data?.contactInfo?.photoUrl || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop"} 
-           alt={finalData.fullName} 
-           className={styles.photo}
-        />
-      </div>
+    <div style={{ width: "38%", position: "relative", display: "flex", flexDirection: "column", flexShrink: 0, backgroundColor: YELLOW, minHeight: "100%" }}>
+      {/* Dark blue area that fills the bottom portion with rounded top-right corner */}
+      <div style={{
+        position: "absolute", top: "22%", bottom: 0, left: 0, right: 0,
+        backgroundColor: DARK_BLUE, borderTopRightRadius: "80px", zIndex: 0
+      }} />
 
-      <h1 className={styles.name}>{finalData.fullName}</h1>
-      {/* Assuming a profession field might exist, mapping from title or hardcoding for now based on image */}
-      <h2 className={styles.profession}>{experience[0]?.title || "Professional"}</h2>
+      {/* Inner content above the z-layers */}
+      <div style={{ position: "relative", zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", padding: "36px 32px 40px", height: "100%" }}>
+        
+        {/* Profile Photo */}
+        <div style={{
+          width: 200, height: 200, borderRadius: "50%",
+          border: `14px solid ${DARK_BLUE}`,
+          outline: `4px solid ${YELLOW}`,
+          overflow: "hidden", flexShrink: 0,
+          backgroundColor: "white", boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+          marginBottom: 16
+        }}>
+          <img
+            src={data?.contactInfo?.photoUrl || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop"}
+            alt={finalData.fullName}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        </div>
 
-      <div className={styles.contact}>
-        <h2 className={styles.sidebarSectionTitle}>Contact</h2>
-        <div className={styles.contactItem}>
-          <div className={styles.contactIcon}>📞</div>
-          <span>{contactInfo.mobile || "+123-456-7890"}</span>
-        </div>
-        <div className={styles.contactItem}>
-          <div className={styles.contactIcon}>✉️</div>
-          <span className="break-all">{contactInfo.email || "hello@reallygreatsite.com"}</span>
-        </div>
-        <div className={styles.contactItem}>
-           <div className={styles.contactIcon}>🌐</div>
-           <span className="break-all">{contactInfo.linkedin || "www.reallygreatsite.com"}</span>
-        </div>
-        <div className={styles.contactItem}>
-           <div className={styles.contactIcon}>📍</div>
-           <span className="break-all">{data?.contactInfo?.address || "123 Anywhere St., Any City"}</span>
+        {/* Name */}
+        <h1 style={{
+          fontSize: 26, fontWeight: 900, textTransform: "uppercase", color: "white",
+          letterSpacing: "0.12em", width: "100%", textAlign: "left",
+          margin: "12px 0 4px", lineHeight: 1.2
+        }}>{finalData.fullName}</h1>
+
+        {/* Profession */}
+        <h2 style={{
+          fontSize: 13, fontWeight: 500, textTransform: "uppercase",
+          color: "rgba(255,255,255,0.8)", letterSpacing: "0.18em",
+          width: "100%", textAlign: "left", marginBottom: 28
+        }}>{experience[0]?.title || finalData.profession || "Marketing Manager"}</h2>
+
+        {/* CONTACT section */}
+        <div style={{ width: "100%" }}>
+          <h3 style={{
+            fontSize: 14, fontWeight: 900, textTransform: "uppercase",
+            letterSpacing: "0.18em", color: "white",
+            marginBottom: 20, textAlign: "left"
+          }}>CONTACT</h3>
+
+          {[
+            { icon: "📞", value: contactInfo.mobile || "+123-456-7890" },
+            { icon: "✉️", value: contactInfo.email || "hello@reallygreatsite.com" },
+            { icon: "🌐", value: contactInfo.linkedin || "www.reallygreatsite.com" },
+            { icon: "📍", value: data?.contactInfo?.address || "123 Anywhere St., Any City" },
+          ].map((item, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+              <div style={{
+                width: 30, height: 30, borderRadius: "50%",
+                backgroundColor: YELLOW, color: DARK_BLUE,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 13, flexShrink: 0, fontWeight: "bold"
+              }}>{item.icon}</div>
+              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", wordBreak: "break-all", lineHeight: 1.4 }}>
+                {item.value}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
-      
     </div>
   );
 
@@ -288,11 +433,15 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
 
 
   return (
-    <div className={styles.container} id="resume-pdf">
+    <div
+      className={templateId !== "executive" ? styles.container : undefined}
+      style={templateId === "executive" ? { display: "flex", width: "100%", minHeight: 1100, backgroundColor: "white", fontFamily: "'Inter', 'Segoe UI', sans-serif" } : undefined}
+      id="resume-pdf"
+    >
       {templateId === "executive" ? (
         <>
           <ExecutiveSidebar />
-          <MainContent />
+          <ExecutiveMainContent />
         </>
       ) : templateId === "modern" ? (
         <>
