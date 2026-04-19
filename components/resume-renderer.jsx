@@ -82,34 +82,40 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
     </div>
   );
 
-  const Header = () => (
-    <div className={styles.header}>
-      <h1 className={`${styles.name} ${templateId === 'creative' ? 'text-white' : 'text-slate-900'}`}>{finalData.fullName}</h1>
-      <div className={styles.contact}>
-        {contactInfo.email && (
-          <div className={styles.contactItem}>
-            {templateId === "modern" && <span className={styles.contactLabel}>Email</span>}
-            <span className={templateId === 'creative' ? 'text-slate-300' : ''}>{contactInfo.email}</span>
-          </div>
-        )}
-        {contactInfo.mobile && (
-          <div className={styles.contactItem}>
-            {templateId === "modern" && <span className={styles.contactLabel}>Phone</span>}
-            <span className={templateId === 'creative' ? 'text-slate-300' : ''}>{contactInfo.mobile}</span>
-          </div>
-        )}
-        {contactInfo.linkedin && (
-          <div className={styles.contactItem}>
-            {templateId === "modern" && <span className={styles.contactLabel}>LinkedIn</span>}
-            <span className={templateId === 'creative' ? 'text-slate-300' : ''}>{contactInfo.linkedin}</span>
-          </div>
-        )}
+  const Header = () => {
+    if (templateId === "executive") return null; // Handled in Sidebar & MainContent for executive
+    
+    return (
+      <div className={styles.header}>
+        <h1 className={`${styles.name} ${templateId === 'creative' ? 'text-white' : 'text-slate-900'}`}>{finalData.fullName}</h1>
+        <div className={styles.contact}>
+          {contactInfo.email && (
+            <div className={styles.contactItem}>
+              {templateId === "modern" && <span className={styles.contactLabel}>Email</span>}
+              <span className={templateId === 'creative' ? 'text-slate-300' : ''}>{contactInfo.email}</span>
+            </div>
+          )}
+          {contactInfo.mobile && (
+            <div className={styles.contactItem}>
+              {templateId === "modern" && <span className={styles.contactLabel}>Phone</span>}
+              <span className={templateId === 'creative' ? 'text-slate-300' : ''}>{contactInfo.mobile}</span>
+            </div>
+          )}
+          {contactInfo.linkedin && (
+            <div className={styles.contactItem}>
+              {templateId === "modern" && <span className={styles.contactLabel}>LinkedIn</span>}
+              <span className={templateId === 'creative' ? 'text-slate-300' : ''}>{contactInfo.linkedin}</span>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const MainContent = () => (
     <div className={styles.main}>
+      {templateId === "executive" && <div className={styles.rightTopAccent}></div>}
+      
       {/* Summary */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Profile</h2>
@@ -120,7 +126,22 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Experience</h2>
         <div className={styles.content}>
-          {experience.length > 0 ? experience.map(renderItem) : (
+          {experience.length > 0 ? experience.map((item, index) => (
+             templateId === "executive" ? (
+                <div key={index} className={styles.itemContainer}>
+                   <div className={styles.itemTitle}>{item.title}</div>
+                   <div className={styles.itemOrganization}>{item.organization}</div>
+                   <div className={styles.itemSubtitle}>
+                      <span>{item.startDate} — {item.current ? "Present" : item.endDate}</span>
+                   </div>
+                   <ul className={styles.itemDescription}>
+                     {item.description?.split('\n').filter(l => l.trim()).map((line, i) => (
+                       <li key={i} className="relative">{line.replace(/^[•\-\*]\s*/, '')}</li>
+                     ))}
+                   </ul>
+                </div>
+             ) : renderItem(item, index)
+          )) : (
             <p className="text-xs italic text-slate-300">Add your experience to replace this sample...</p>
           )}
         </div>
@@ -131,10 +152,87 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Key Projects</h2>
           <div className={styles.content}>
-            {projects.map(renderItem)}
+            {projects.map((item, index) => (
+              templateId === "executive" ? (
+                 <div key={index} className={styles.itemContainer}>
+                    <div className={styles.itemTitle}>{item.title}</div>
+                    <div className={styles.itemOrganization}>{item.organization}</div>
+                    <div className={styles.itemSubtitle}>
+                       <span>{item.startDate} — {item.current ? "Present" : item.endDate}</span>
+                    </div>
+                    <ul className={styles.itemDescription}>
+                      {item.description?.split('\n').filter(l => l.trim()).map((line, i) => (
+                        <li key={i} className="relative">{line.replace(/^[•\-\*]\s*/, '')}</li>
+                      ))}
+                    </ul>
+                 </div>
+              ) : renderItem(item, index)
+            ))}
           </div>
         </div>
       )}
+    </div>
+  );
+
+  const ExecutiveSidebar = () => (
+    <div className={styles.sidebar}>
+      <div className={styles.sidebarTopAccent}></div>
+      
+      <div className={styles.photoWrapper}>
+        <img 
+           src={data?.contactInfo?.photoUrl || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop"} 
+           alt={finalData.fullName} 
+           className={styles.photo}
+        />
+      </div>
+
+      <h1 className={styles.name}>{finalData.fullName}</h1>
+      {/* Assuming a profession field might exist, mapping from title or hardcoding for now based on image */}
+      <h2 className={styles.profession}>{experience[0]?.title || "Professional"}</h2>
+
+      <div className={styles.contact}>
+        {contactInfo.mobile && (
+          <div className={styles.contactItem}>
+            <div className={styles.contactIcon}>📞</div>
+            <span>{contactInfo.mobile}</span>
+          </div>
+        )}
+        {contactInfo.email && (
+          <div className={styles.contactItem}>
+            <div className={styles.contactIcon}>✉️</div>
+            <span className="break-all">{contactInfo.email}</span>
+          </div>
+        )}
+        {contactInfo.linkedin && (
+           <div className={styles.contactItem}>
+              <div className={styles.contactIcon}>🌐</div>
+              <span className="break-all">{contactInfo.linkedin}</span>
+           </div>
+        )}
+      </div>
+
+      <div className="w-full mb-8">
+        <h2 className={styles.sidebarSectionTitle}>Skills</h2>
+        <div className={styles.skillsList}>
+          {(Array.isArray(skills) ? skills : skills.split(',')).map((s, i) => (
+            <div key={i} className={styles.skillItem}>{s.trim()}</div>
+          ))}
+        </div>
+      </div>
+
+      <div className="w-full">
+        <h2 className={styles.sidebarSectionTitle}>Education</h2>
+        <div className="flex flex-col gap-4 w-full">
+           {education.map((edu, i) => (
+             <div key={i} className={styles.educationItem}>
+                <div className={styles.educationDegree}>{edu.title}</div>
+                <div className={styles.educationSchool}>{edu.organization}</div>
+                <div className={styles.educationDate}>{edu.startDate} — {edu.endDate}</div>
+             </div>
+           ))}
+        </div>
+      </div>
+      
     </div>
   );
 
@@ -175,7 +273,12 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
 
   return (
     <div className={styles.container} id="resume-pdf">
-      {templateId === "modern" ? (
+      {templateId === "executive" ? (
+        <>
+          <ExecutiveSidebar />
+          <MainContent />
+        </>
+      ) : templateId === "modern" ? (
         <>
           <SidebarContent />
           <div className={styles.main}>

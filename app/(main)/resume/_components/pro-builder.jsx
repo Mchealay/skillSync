@@ -212,6 +212,33 @@ export default function ProResumeBuilder({ initialData }) {
                                   </div>
                                </div>
                             </div>
+                         ) : template.id === 'executive' ? (
+                            <div className="flex h-full bg-white relative">
+                               <div className="w-[35%] bg-slate-900 flex flex-col items-center p-2 relative overflow-hidden z-10">
+                                  <div className="absolute top-0 left-0 w-full h-8 bg-[#f2bc5a] rounded-br-[20px] -z-10" />
+                                  <div className="w-8 h-8 rounded-full border-[3px] border-slate-900 ring-[3px] ring-[#f2bc5a] bg-slate-300 mt-2 z-10" />
+                                  <div className="text-[6px] font-black uppercase text-white mt-2 leading-tight text-center">JOHN<br/>DOE</div>
+                                  <div className="text-[2px] font-medium tracking-[0.2em] text-slate-300 mt-1 uppercase">Executive</div>
+                                  <div className="mt-4 flex flex-col gap-1 w-full px-1">
+                                    <div className="h-0.5 w-full bg-slate-700 rounded" />
+                                    <div className="h-0.5 w-2/3 bg-slate-700 rounded" />
+                                  </div>
+                               </div>
+                               <div className="w-[65%] p-3 relative">
+                                  <div className="absolute top-0 right-0 w-full h-2 bg-[#f2bc5a]" />
+                                  <div className="mt-2 space-y-3">
+                                     <div>
+                                        <div className="text-[4px] font-bold text-slate-800 mb-1 border-b pb-0.5">PROFILE</div>
+                                        <div className="text-[2px] line-clamp-3 text-slate-500">Results-driven executive with 15+ years experience...</div>
+                                     </div>
+                                     <div>
+                                        <div className="text-[4px] font-bold text-slate-800 mb-1 border-b pb-0.5">EXPERIENCE</div>
+                                        <div className="w-full h-1 bg-slate-200 mb-0.5" />
+                                        <div className="w-3/4 h-1 bg-slate-200" />
+                                     </div>
+                                  </div>
+                               </div>
+                            </div>
                          ) : template.id === 'professional' ? (
                             <div className="flex flex-col items-center p-6 gap-3 text-center">
                                <div className="text-slate-900 text-[10px] font-black tracking-[0.2em]">JOHN DOE</div>
