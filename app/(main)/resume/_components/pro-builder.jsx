@@ -379,26 +379,33 @@ export default function ProResumeBuilder({ initialData }) {
                  </div>
 
                  {selectedTemplate === 'executive' && (
-                   <div className="space-y-2 bg-muted/30 p-4 rounded-xl border border-white/10">
+                   <div className="space-y-4 bg-muted/30 p-4 rounded-xl border border-white/10">
                      <label className="text-sm font-semibold flex items-center gap-2">
-                       <Layout className="w-4 h-4 text-primary" /> Profile Photo URL
+                       <Layout className="w-4 h-4 text-primary" /> Profile Photo
                      </label>
                      <Input 
-                       placeholder="Paste image URL here (e.g. from LinkedIn or Imgur)" 
-                       value={resumeData?.contactInfo?.photoUrl || ""}
+                       type="file"
+                       accept="image/*"
                        onChange={(e) => {
-                         const newUrl = e.target.value;
-                         const updatedData = {
-                           ...resumeData,
-                           contactInfo: {
-                             ...resumeData?.contactInfo,
-                             photoUrl: newUrl
-                           }
-                         };
-                         setResumeData(updatedData);
-                         setJsonString(JSON.stringify(updatedData, null, 2));
+                         const file = e.target.files[0];
+                         if (file) {
+                           const reader = new FileReader();
+                           reader.onloadend = () => {
+                             const updatedData = {
+                               ...resumeData,
+                               contactInfo: {
+                                 ...resumeData?.contactInfo,
+                                 photoUrl: reader.result
+                               }
+                             };
+                             setResumeData(updatedData);
+                             setJsonString(JSON.stringify(updatedData, null, 2));
+                           };
+                           reader.readAsDataURL(file);
+                         }
                        }}
                      />
+                     <div className="text-xs text-muted-foreground italic">You can upload a local image to appear on your resume.</div>
                    </div>
                  )}
                  
