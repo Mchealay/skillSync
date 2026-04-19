@@ -377,6 +377,30 @@ export default function ProResumeBuilder({ initialData }) {
                     <h3 className="text-2xl font-black gradient-title">Edit Resume Data</h3>
                     <p className="text-muted-foreground text-sm">Fine-tune the content below. Changes reflect instantly in the live preview.</p>
                  </div>
+
+                 {selectedTemplate === 'executive' && (
+                   <div className="space-y-2 bg-muted/30 p-4 rounded-xl border border-white/10">
+                     <label className="text-sm font-semibold flex items-center gap-2">
+                       <Layout className="w-4 h-4 text-primary" /> Profile Photo URL
+                     </label>
+                     <Input 
+                       placeholder="Paste image URL here (e.g. from LinkedIn or Imgur)" 
+                       value={resumeData?.contactInfo?.photoUrl || ""}
+                       onChange={(e) => {
+                         const newUrl = e.target.value;
+                         const updatedData = {
+                           ...resumeData,
+                           contactInfo: {
+                             ...resumeData?.contactInfo,
+                             photoUrl: newUrl
+                           }
+                         };
+                         setResumeData(updatedData);
+                         setJsonString(JSON.stringify(updatedData, null, 2));
+                       }}
+                     />
+                   </div>
+                 )}
                  
                  <div className="relative group">
                     <Textarea
