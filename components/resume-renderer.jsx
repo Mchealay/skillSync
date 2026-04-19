@@ -122,10 +122,25 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
         <div className="text-[0.95rem] leading-relaxed text-slate-600 font-medium">{summary}</div>
       </div>
 
+      {/* Education moved to Main Content exactly under Profile for executive template */}
+      {templateId === "executive" && (
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>Education</h2>
+          <div className="flex flex-col gap-3 w-full">
+            {education.map((edu, i) => (
+              <div key={i} className={styles.educationItem}>
+                  <div className={styles.educationDegree}>{edu.title}</div>
+                  <div className={styles.educationSchool}>• {edu.organization} ({edu.startDate}-{edu.endDate || 'Present'})</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Work Experience */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Experience</h2>
-        <div className={styles.content}>
+        <h2 className={styles.sectionTitle}>Work Experience</h2>
+        <div className={templateId === "executive" ? styles.gridTwoCols : styles.content}>
           {experience.length > 0 ? experience.map((item, index) => (
              templateId === "executive" ? (
                 <div key={index} className={styles.itemContainer}>
@@ -215,6 +230,7 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
       <h2 className={styles.profession}>{experience[0]?.title || "Professional"}</h2>
 
       <div className={styles.contact}>
+        <h2 className={styles.sidebarSectionTitle}>Contact</h2>
         <div className={styles.contactItem}>
           <div className={styles.contactIcon}>📞</div>
           <span>{contactInfo.mobile || "+123-456-7890"}</span>
@@ -232,20 +248,6 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
            <span className="break-all">{data?.contactInfo?.address || "123 Anywhere St., Any City"}</span>
         </div>
       </div>
-
-      {templateId === "executive" && (
-        <div className="w-full mt-4">
-          <h2 className={styles.sidebarSectionTitle}>Education</h2>
-          <div className="flex flex-col gap-4 w-full">
-            {education.map((edu, i) => (
-              <div key={i} className={styles.educationItem}>
-                  <div className={styles.educationDegree}>{edu.title}</div>
-                  <div className={styles.educationSchool}>• {edu.organization} ({edu.startDate}-{edu.endDate || 'Present'})</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
       
     </div>
   );
