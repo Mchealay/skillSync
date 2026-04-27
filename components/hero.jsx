@@ -384,7 +384,7 @@ useEffect(() => {
               {/* Responsive image with aspect ratio preservation */}
               <div className="relative w-full aspect-video">
                 <Image
-                  src="/about.webp"
+                  src="/about1.png"
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 60vw"
                   alt="Dashboard Preview"
