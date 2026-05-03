@@ -62,6 +62,14 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
   };
 
   const { contactInfo, summary, skills, experience, education, projects = [] } = finalData;
+  
+  // Helper to ensure description is always an array of lines
+  const formatDescription = (desc) => {
+    if (!desc) return [];
+    if (Array.isArray(desc)) return desc;
+    if (typeof desc === 'string') return desc.split('\n');
+    return [];
+  };
 
   // Helper for item rendering
   const renderItem = (item, index) => (
@@ -74,7 +82,7 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
       </div>
       <div className="text-sm font-black text-slate-500 mb-3 uppercase tracking-wider">{item.organization}</div>
       <ul className={styles.itemDescription}>
-        {item.description?.split('\n').filter(l => l.trim()).map((line, i) => (
+        {formatDescription(item.description).filter(l => l.trim()).map((line, i) => (
           <li key={i} className="relative">
             {line.replace(/^[•\-\*]\s*/, '')}
           </li>
@@ -151,7 +159,7 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
                       <span>{item.startDate} — {item.current ? "Present" : item.endDate}</span>
                    </div>
                    <ul className={styles.itemDescription}>
-                     {item.description?.split('\n').filter(l => l.trim()).map((line, i) => (
+                     {formatDescription(item.description).filter(l => l.trim()).map((line, i) => (
                        <li key={i} className="relative">{line.replace(/^[•\-\*]\s*/, '')}</li>
                      ))}
                    </ul>
@@ -177,7 +185,7 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
                        <span>{item.startDate} — {item.current ? "Present" : item.endDate}</span>
                     </div>
                     <ul className={styles.itemDescription}>
-                      {item.description?.split('\n').filter(l => l.trim()).map((line, i) => (
+                      {formatDescription(item.description).filter(l => l.trim()).map((line, i) => (
                         <li key={i} className="relative">{line.replace(/^[•\-\*]\s*/, '')}</li>
                       ))}
                     </ul>
@@ -276,7 +284,7 @@ export function ResumeRenderer({ data, templateId = "professional" }) {
                 {item.startDate} — {item.current ? "Present" : item.endDate}
               </div>
               <ul style={{ paddingLeft: 16, margin: 0 }}>
-                {item.description?.split('\n').filter(l => l.trim()).map((line, i) => (
+                {formatDescription(item.description).filter(l => l.trim()).map((line, i) => (
                   <li key={i} style={{ fontSize: 11.5, color: "#555", lineHeight: 1.6, marginBottom: 3 }}>
                     {line.replace(/^[•\-\*]\s*/, '')}
                   </li>

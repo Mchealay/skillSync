@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sparkles, 
@@ -42,6 +42,36 @@ export default function ProResumeBuilder({ initialData }) {
   const [resumeData, setResumeData] = useState(initialData || null);
   const [jsonString, setJsonString] = useState(JSON.stringify(initialData, null, 2) || "");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [viewMode, setViewMode] = useState("edit"); // 'edit' or 'preview' for mobile
+  const previewContainerRef = useRef(null);
+
+  // Dynamically scale the A4 preview to fill the container
+  useEffect(() => {
+    const container = previewContainerRef.current;
+    if (!container) return;
+    
+    const A4_WIDTH = 794; // px at 96 dpi
+    const applyScale = () => {
+      // If the container is currently hidden (e.g. on mobile 'edit' tab), 
+      // we might get 0. We'll use a fallback or wait for visibility.
+      const available = container.offsetWidth || (window.innerWidth < 640 ? window.innerWidth - 32 : 400);
+      const scale = Math.min((available - 16) / A4_WIDTH, 1);
+      
+      container.style.setProperty("--preview-scale", scale.toFixed(4));
+      const scaledHeight = 1123 * scale;
+      container.style.height = `${Math.max(scaledHeight + 32, 400)}px`;
+    };
+
+    // Use a small timeout to ensure DOM is settled if switching steps/tabs
+    const timer = setTimeout(applyScale, 50);
+    
+    const ro = new ResizeObserver(applyScale);
+    ro.observe(container);
+    return () => {
+      clearTimeout(timer);
+      ro.disconnect();
+    };
+  }, [currentStep, viewMode]);
 
   const {
     loading: isSaving,
@@ -350,29 +380,48 @@ export default function ProResumeBuilder({ initialData }) {
             exit={{ opacity: 0, scale: 1.05 }}
             className="space-y-8"
           >
-            <div className="flex justify-between items-center bg-background/80 backdrop-blur-md sticky top-0 py-4 z-50 border-b">
-               <div className="flex items-center gap-4">
-                 <Button variant="outline" size="sm" onClick={() => setCurrentStep(2)}>
-                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
+            <div className="flex flex-col sm:flex-row justify-between items-center bg-background/90 backdrop-blur-xl sticky top-0 py-3 z-50 border-b border-white/5 gap-4">
+               <div className="flex items-center gap-3 w-full sm:w-auto">
+                 <Button variant="ghost" size="sm" onClick={() => setCurrentStep(2)} className="hover:bg-primary/5">
+                   <ChevronLeft className="w-4 h-4 mr-1" /> Back
                  </Button>
-                 <div className="hidden sm:block">
-                   <h2 className="text-lg font-bold">Refine & Finalize</h2>
-                   <p className="text-xs text-muted-foreground">Template: <span className="capitalize text-primary font-medium">{selectedTemplate}</span></p>
+                 <div className="border-l border-white/10 pl-3">
+                   <h2 className="text-sm sm:text-base font-bold flex items-center gap-2">
+                     <FileText className="w-4 h-4 text-primary" />
+                     Finalize
+                   </h2>
                  </div>
                </div>
-               <div className="flex items-center gap-2">
-                 <Button variant="outline" size="sm" onClick={generatePDF}>
-                   <Download className="w-4 h-4 mr-2" /> Download PDF
+
+               {/* Mobile Switcher */}
+               <div className="flex lg:hidden bg-muted/50 p-1 rounded-lg border border-white/5 w-full sm:w-auto">
+                  <button 
+                    onClick={() => setViewMode("edit")}
+                    className={`flex-1 px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === 'edit' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground'}`}
+                  >
+                    Editor
+                  </button>
+                  <button 
+                    onClick={() => setViewMode("preview")}
+                    className={`flex-1 px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === 'preview' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground'}`}
+                  >
+                    Preview
+                  </button>
+               </div>
+
+               <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                 <Button variant="outline" size="sm" onClick={generatePDF} className="h-9 text-xs border-white/10 hover:bg-white/5">
+                   <Download className="w-4 h-4 mr-2" /> <span className="hidden xs:inline">PDF</span>
                  </Button>
-                 <Button size="sm" onClick={handleFinalize} disabled={isSaving}>
-                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save & Continue"}
+                 <Button size="sm" onClick={handleFinalize} disabled={isSaving} className="h-9 text-xs px-6 shadow-lg shadow-primary/20">
+                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Finalize & Save"}
                  </Button>
                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                {/* ✍️ Editor Section */}
-               <div className="space-y-6">
+                <div className={`space-y-6 ${viewMode === 'preview' ? 'hidden lg:block' : 'block'}`}>
                  <div className="flex flex-col gap-2">
                     <h3 className="text-2xl font-black gradient-title">Edit Resume Data</h3>
                     <p className="text-muted-foreground text-sm">Fine-tune the content below. Changes reflect instantly in the live preview.</p>
@@ -411,7 +460,7 @@ export default function ProResumeBuilder({ initialData }) {
                  
                  <div className="relative group">
                     <Textarea
-                      className="h-[800px] font-mono text-xs leading-relaxed bg-card/20 border-white/5 p-6 focus-visible:ring-primary shadow-2xl transition-all duration-300 group-hover:bg-card/30"
+                      className="min-h-[400px] md:h-[calc(100vh-280px)] font-mono text-xs leading-relaxed bg-card/20 border-white/5 p-6 focus-visible:ring-primary shadow-2xl transition-all duration-300 group-hover:bg-card/30 resize-none scrollbar-thin"
                       value={jsonString}
                       onChange={(e) => {
                         const newString = e.target.value;
@@ -433,16 +482,42 @@ export default function ProResumeBuilder({ initialData }) {
                </div>
 
                {/* 🖼️ Live Preview Section */}
-               <div className="sticky top-24 space-y-6">
-                 <div className="flex flex-col gap-2">
+                <div className={`sticky top-24 space-y-4 ${viewMode === 'edit' ? 'hidden lg:block' : 'block'}`}>
+                 <div className="flex flex-col gap-1">
                     <h3 className="text-2xl font-black gradient-title">Live Preview</h3>
-                    <p className="text-muted-foreground text-sm">Professional orientation (A4 format). Best for standard recruitment.</p>
+                    <p className="text-muted-foreground text-sm tracking-tight font-medium uppercase text-[10px] opacity-60">Template: {selectedTemplate}</p>
                  </div>
 
-                 <div className="bg-gray-100 dark:bg-gray-900 p-4 md:p-8 rounded-2xl shadow-inner max-h-[900px] overflow-y-auto flex justify-center border-2 border-dashed border-primary/10">
-                    <div className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] transition-all duration-500 origin-top scale-[0.55] sm:scale-[0.75] md:scale-[0.9] lg:scale-100 mb-[-300px] sm:mb-[-100px] lg:mb-0">
-                      <ResumeRenderer data={resumeData} templateId={selectedTemplate} />
-                    </div>
+                 {/* Responsive preview card — A4 sheet scales inside a fixed viewport */}
+                 <div className="rounded-2xl border border-primary/15 bg-gray-100 dark:bg-gray-900 shadow-xl overflow-hidden min-h-[500px]">
+                   {/* Fixed-height window so the card never collapses */}
+                   <div
+                     ref={previewContainerRef}
+                     className="relative overflow-auto transition-all duration-300"
+                   >
+                     {/* Scale wrapper — A4 is 794px wide at 96 dpi */}
+                     <div
+                       className="absolute inset-0 flex items-start justify-center py-4 px-2"
+                     >
+                       <div
+                         id="resume-preview-scaler"
+                         className="origin-top w-[794px] bg-white shadow-2xl"
+                         style={{
+                           /* Scale the fixed-width A4 sheet to fill ~90% of the container width */
+                           transform: "scale(var(--preview-scale, 0.6))",
+                           transformOrigin: "top center",
+                         }}
+                       >
+                         <ResumeRenderer data={resumeData} templateId={selectedTemplate} />
+                       </div>
+                     </div>
+                   </div>
+
+                   {/* Footer bar with template label */}
+                   <div className="flex items-center justify-between px-4 py-2 border-t border-white/10 bg-background/60 backdrop-blur-sm text-xs text-muted-foreground">
+                     <span>Template: <span className="capitalize text-primary font-semibold">{selectedTemplate}</span></span>
+                     <span className="hidden sm:block">A4 · Portrait</span>
+                   </div>
                  </div>
                </div>
             </div>
