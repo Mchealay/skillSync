@@ -27,7 +27,7 @@ export function CoverLetterRenderer({ data, templateId = "professional" }) {
   };
 
   const { 
-    content, 
+    content,
     companyName, 
     jobTitle, 
     userName, 
@@ -35,6 +35,9 @@ export function CoverLetterRenderer({ data, templateId = "professional" }) {
     userMobile, 
     userAddress 
   } = finalData;
+
+  // Ensure content is always a string for safe rendering
+  const safeContent = Array.isArray(content) ? content.join('\n\n') : (content || "");
 
   const Header = ({ dark = false }) => (
     <div className={styles.header}>
@@ -74,7 +77,7 @@ export function CoverLetterRenderer({ data, templateId = "professional" }) {
 
       <div className={styles.content}>
         <div className={styles.salutation}>Dear Hiring Manager,</div>
-        <div className={styles.body}>{content}</div>
+        <div className={styles.body}>{safeContent}</div>
         <div className={styles.signature}>
           <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.3em] mb-4">Sincerely,</p>
           <p>{userName}</p>
