@@ -86,7 +86,7 @@
   }
 
   .glass {
-    @apply bg-background/60 backdrop-blur-md border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+    @apply bg-background/70 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)];
   }
 
   .glass-card {
