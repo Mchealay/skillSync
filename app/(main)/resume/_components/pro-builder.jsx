@@ -440,7 +440,7 @@ export default function ProResumeBuilder({ initialData }) {
                  </div>
 
                  <div className="bg-gray-100 dark:bg-gray-900 p-4 md:p-8 rounded-2xl shadow-inner max-h-[900px] overflow-y-auto flex justify-center border-2 border-dashed border-primary/10">
-                    <div className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] transition-all duration-500">
+                    <div className="bg-white shadow-2xl w-full max-w-[210mm] min-h-[297mm] transition-all duration-500 origin-top scale-[0.55] sm:scale-[0.75] md:scale-[0.9] lg:scale-100 mb-[-300px] sm:mb-[-100px] lg:mb-0">
                       <ResumeRenderer data={resumeData} templateId={selectedTemplate} />
                     </div>
                  </div>
