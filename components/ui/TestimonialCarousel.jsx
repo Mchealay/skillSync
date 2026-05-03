@@ -27,6 +27,26 @@ const duplicateTestimonials = (testimonials) => {
 export default function TestimonialCarousel({ testimonials }) {
   const extendedTestimonials = duplicateTestimonials(testimonials);
   const [visibleCards, setVisibleCards] = useState([0, 1, 2]);
+  const [itemsToShow, setItemsToShow] = useState(3);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setItemsToShow(1);
+        setVisibleCards([0]);
+      } else if (window.innerWidth < 1024) {
+        setItemsToShow(2);
+        setVisibleCards([0, 1]);
+      } else {
+        setItemsToShow(3);
+        setVisibleCards([0, 1, 2]);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [direction, setDirection] = useState(1); // 1 for forward, -1 for backward
   const [autoPlayIndex, setAutoPlayIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -123,7 +143,7 @@ export default function TestimonialCarousel({ testimonials }) {
       </div>
       
       {/* Testimonial cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className={`grid gap-6 ${itemsToShow === 1 ? 'grid-cols-1' : itemsToShow === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
         {visibleCards.map((index, i) => (
           <AnimatePresence custom={direction} mode="popLayout" key={`position-${i}`}>
             <motion.div

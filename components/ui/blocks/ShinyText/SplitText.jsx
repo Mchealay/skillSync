@@ -96,7 +96,7 @@ const SplitText = ({
     <p
       ref={ref}
       id={id}
-      className={`split-parent text-center overflow-hidden inline-block whitespace-normal ${className}`}
+      className={`split-parent text-center overflow-hidden block whitespace-normal ${className}`}
       style={{
         textAlign,
         wordWrap: "break-word",

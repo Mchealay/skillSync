@@ -222,7 +222,7 @@ export default function LandingPage() {
             <SplitText
               text="AI Features to Accelerate Your Career"
               id="features-title"
-              className="text-5xl font-semibold text-center tracking-tighter ml-[15%] mr-auto mb-12"
+              className="text-3xl md:text-5xl font-semibold text-center tracking-tighter mx-auto mb-12"
               delay={100}
               duration={0.2}
               ease="power3.out"
@@ -464,7 +464,7 @@ export default function LandingPage() {
         />
 
         <div className="container mx-auto px-4 md:px-6 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
             <AnimatedCounter
               value="50+"
               classname="animate-bounce"

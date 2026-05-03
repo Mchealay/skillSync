@@ -86,7 +86,7 @@ export default function CoverLetterGenerator() {
       {/* Template Selection */}
       <div className="space-y-4">
         <Label className="text-sm font-black uppercase tracking-widest text-slate-500">Step 1: Choose Your Style</Label>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {Object.values(COVER_LETTER_TEMPLATES).map((template) => (
             <div
               key={template.id}

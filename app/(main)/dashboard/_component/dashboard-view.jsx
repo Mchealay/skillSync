@@ -202,7 +202,7 @@ const DashboardView = ({ insights }) => {
           <CardDescription className="text-base">Target role compensation benchmarks (Annual, in thousands)</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-4">
-          <div className="h-[450px] w-full">
+          <div className="h-[300px] md:h-[450px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={salaryData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />

@@ -64,7 +64,7 @@ const CoverLetterPreview = ({ type = "coverLetter", data }) => {
       </div>
 
       {/* Preview Section */}
-      <div className="sticky top-24 space-y-6">
+      <div className="lg:sticky lg:top-24 space-y-6">
         <div className="flex flex-col gap-2">
            <h2 className="text-2xl font-black gradient-title">Live Template Preview</h2>
            <p className="text-muted-foreground text-sm">This is how your document will look when exported. (Matched to Professional Style)</p>

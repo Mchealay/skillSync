@@ -231,7 +231,7 @@ useEffect(() => {
         {/* Main content with sequence animations */}
         <div className="space-y-6 mx-auto pt-32 pb-4">
           <SequenceItem animation="slideUp" delay={0.1}>
-            <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl xl:text-6xl gradient-title tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold md:text-4xl lg:text-5xl xl:text-6xl gradient-title tracking-tight">
               Welcome to skillSync<br />
               Your AI-Powered Career Assistant
             </h1>
