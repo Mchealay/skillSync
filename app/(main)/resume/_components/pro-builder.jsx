@@ -380,12 +380,12 @@ export default function ProResumeBuilder({ initialData }) {
             exit={{ opacity: 0, scale: 1.05 }}
             className="space-y-8"
           >
-            <div className="flex flex-col sm:flex-row justify-between items-center bg-background/90 backdrop-blur-xl sticky top-0 py-3 z-50 border-b border-white/5 gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center bg-background/90 backdrop-blur-xl sticky top-0 py-3 z-50 border-b border-border/50 gap-4">
                <div className="flex items-center gap-3 w-full sm:w-auto">
                  <Button variant="ghost" size="sm" onClick={() => setCurrentStep(2)} className="hover:bg-primary/5">
                    <ChevronLeft className="w-4 h-4 mr-1" /> Back
                  </Button>
-                 <div className="border-l border-white/10 pl-3">
+                 <div className="border-l border-border pl-3">
                    <h2 className="text-sm sm:text-base font-bold flex items-center gap-2">
                      <FileText className="w-4 h-4 text-primary" />
                      Finalize
@@ -394,7 +394,7 @@ export default function ProResumeBuilder({ initialData }) {
                </div>
 
                {/* Mobile Switcher */}
-               <div className="flex lg:hidden bg-muted/50 p-1 rounded-lg border border-white/5 w-full sm:w-auto">
+               <div className="flex lg:hidden bg-muted/50 p-1 rounded-lg border border-border/50 w-full sm:w-auto">
                   <button 
                     onClick={() => setViewMode("edit")}
                     className={`flex-1 px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === 'edit' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground'}`}
@@ -410,7 +410,7 @@ export default function ProResumeBuilder({ initialData }) {
                </div>
 
                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                 <Button variant="outline" size="sm" onClick={generatePDF} className="h-9 text-xs border-white/10 hover:bg-white/5">
+                 <Button variant="outline" size="sm" onClick={generatePDF} className="h-9 text-xs border-border hover:bg-white/5">
                    <Download className="w-4 h-4 mr-2" /> <span className="hidden xs:inline">PDF</span>
                  </Button>
                  <Button size="sm" onClick={handleFinalize} disabled={isSaving} className="h-9 text-xs px-6 shadow-lg shadow-primary/20">
@@ -428,7 +428,7 @@ export default function ProResumeBuilder({ initialData }) {
                  </div>
 
                  {selectedTemplate === 'executive' && (
-                   <div className="space-y-4 bg-muted/30 p-4 rounded-xl border border-white/10">
+                   <div className="space-y-4 bg-muted/30 p-4 rounded-xl border border-border">
                      <label className="text-sm font-semibold flex items-center gap-2">
                        <Layout className="w-4 h-4 text-primary" /> Profile Photo
                      </label>
@@ -460,7 +460,7 @@ export default function ProResumeBuilder({ initialData }) {
                  
                  <div className="relative group">
                     <Textarea
-                      className="min-h-[400px] md:h-[calc(100vh-280px)] font-mono text-xs leading-relaxed bg-card/20 border-white/5 p-6 focus-visible:ring-primary shadow-2xl transition-all duration-300 group-hover:bg-card/30 resize-none scrollbar-thin"
+                      className="min-h-[400px] md:h-[calc(100vh-280px)] font-mono text-xs leading-relaxed bg-card/20 border-border/50 p-6 focus-visible:ring-primary shadow-2xl transition-all duration-300 group-hover:bg-card/30 resize-none scrollbar-thin"
                       value={jsonString}
                       onChange={(e) => {
                         const newString = e.target.value;
@@ -514,7 +514,7 @@ export default function ProResumeBuilder({ initialData }) {
                    </div>
 
                    {/* Footer bar with template label */}
-                   <div className="flex items-center justify-between px-4 py-2 border-t border-white/10 bg-background/60 backdrop-blur-sm text-xs text-muted-foreground">
+                   <div className="flex items-center justify-between px-4 py-2 border-t border-border bg-background/60 backdrop-blur-sm text-xs text-muted-foreground">
                      <span>Template: <span className="capitalize text-primary font-semibold">{selectedTemplate}</span></span>
                      <span className="hidden sm:block">A4 · Portrait</span>
                    </div>

@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import ThemSwitch from "./theme-switch";
+import ThemeSwitch from "./theme-switch";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function HeaderActions() {
@@ -106,7 +106,7 @@ export default function HeaderActions() {
           </div>
         </Show>
 
-        <ThemSwitch />
+        <ThemeSwitch />
 
         {/* Mobile Menu Toggle */}
         <Button

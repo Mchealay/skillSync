@@ -39,14 +39,14 @@ if (typeof window !== "undefined") {
 
 
 const cardGradients = [
-  "linear-gradient(to bottom right, #0e001a, #1e0033)", // Very dark purple
-  "linear-gradient(to bottom right, #000d1a, #001a33)", // Very dark blue
-  "linear-gradient(to bottom right, #001a0e, #00331c)", // Very dark green
-  "linear-gradient(to bottom right, #1a0010, #33001e)", // Very dark magenta
-  "linear-gradient(to bottom right, #1a0e00, #331c00)", // Very dark amber
-  "linear-gradient(to bottom right, #0e0033, #000d33)", // Very dark purple-blue
-  "linear-gradient(to bottom right, #00141a, #001a1f)", // Very dark teal
-  "linear-gradient(to bottom right, #140026, #1f002b)", // Very dark violet
+  "linear-gradient(to bottom right, rgba(14, 0, 26, 0.95), rgba(30, 0, 51, 0.95))",
+  "linear-gradient(to bottom right, rgba(0, 13, 26, 0.95), rgba(0, 26, 51, 0.95))",
+  "linear-gradient(to bottom right, rgba(0, 26, 14, 0.95), rgba(0, 51, 28, 0.95))",
+  "linear-gradient(to bottom right, rgba(26, 0, 16, 0.95), rgba(51, 0, 30, 0.95))",
+  "linear-gradient(to bottom right, rgba(26, 14, 0, 0.95), rgba(51, 28, 0, 0.95))",
+  "linear-gradient(to bottom right, rgba(14, 0, 51, 0.95), rgba(0, 13, 51, 0.95))",
+  "linear-gradient(to bottom right, rgba(0, 20, 26, 0.95), rgba(0, 26, 31, 0.95))",
+  "linear-gradient(to bottom right, rgba(20, 0, 38, 0.95), rgba(31, 0, 43, 0.95))",
 ];
 
 // Animation variants

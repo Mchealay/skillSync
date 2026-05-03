@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
     <ClerkProvider appearance={{ baseTheme: dark }}>
       <CSPostHogProvider>
 
-      <html lang="en" suppressHydrationWarning className="dark">
+      <html lang="en" suppressHydrationWarning>
         <head>
           <link rel="icon" href="/skill.png" sizes="any" />
           {/* SEO Meta Tags */}
