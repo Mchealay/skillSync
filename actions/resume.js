@@ -155,7 +155,7 @@ export async function saveResume(content) {
 
 export async function getResume() {
   const user = await checkUser();
-  if (!user) throw new Error("Unauthorized");
+  if (!user) return null;
 
   return await db.resume.findUnique({
     where: {
